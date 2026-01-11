@@ -24,6 +24,7 @@ export const mapStudent = (data: any) => ({
   phone: data.phone,
   admissionNumber: data.admissionNumber || data.admission_number,
   classId: data.classId || data.class_id,
+  class: data.class ? { id: data.class.id, name: data.class.name } : undefined,
   sectionId: data.sectionId || data.section_id,
   // Add more fields as needed
 });

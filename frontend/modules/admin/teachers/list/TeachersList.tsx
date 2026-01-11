@@ -1,158 +1,279 @@
 import Head from 'next/head';
-import { useState } from 'react';
-import Link from 'next/link';
-import AuthGuard from '@/components/guards/AuthGuard';
-import RoleGuard from '@/components/guards/RoleGuard';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import AdminLayout from '@/components/layouts/AdminLayout';
-import { USER_ROLES } from '@/utils/role-config';
+import { useTeachers } from '@/hooks/useTeachers';
+import { teachersService } from '@/services/teachers.service';
+import Skeleton from '@/components/ui/Skeleton';
+import {
+    Users,
+    Plus,
+    Search,
+    Filter,
+    MoreVertical,
+    Edit3,
+    Trash2,
+    Mail,
+    Phone,
+    ArrowRight,
+    ShieldCheck,
+    AlertCircle,
+    Clock,
+    Briefcase
+} from 'lucide-react';
 
 export default function TeachersList() {
-    const [filterDept, setFilterDept] = useState('');
-    const [filterStatus, setFilterStatus] = useState('');
+    const router = useRouter();
+    const [searchTerm, setSearchTerm] = useState('');
+    const {
+        teachers,
+        loading,
+        error,
+        total,
+        params,
+        setPage,
+        setSearch,
+        setFilter,
+        refetch
+    } = useTeachers();
 
-    // Mock Data
-    const teachers = [
-        { id: 'T-2023-001', name: 'Mrs. Davis', email: 'davis@school.edu', department: 'Primary Education', subject: 'Class Teacher (5B)', status: 'Active', avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuC2zqY990DeqkZM4dJJNI-IccxSoiaA02z-K4lW83JW79qtT8tST09OTED0BFcLFcDRd8AzjGUPCi--aKOJwoEiaHnC1htT0OVh0y-GoP0GErdHBTtCgo1RZyUdFfxQ3dzYHObN7bHPJHpmlc3Wxz6fEH-dUu338jVymJfMoL5apF7s1GK36Q1X0NbxCtD9YEggaa2fqtS2xPN5MdAizrJD1Vf99sWHWdZBASaQF6IQAcISVAAHo2Yjoc7z14dCR0zN9PWKkPvGauzp' },
-        { id: 'T-2023-002', name: 'Mr. Anderson', email: 'anderson@school.edu', department: 'Mathematics', subject: 'Advanced Math', status: 'Active', avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDWKnu2bhx3mv5dqm9g9HIAkgZEZdX8W4-fie7YP5xcRFeNMJjZm5ziDRuvYZy7eerJhLhZZWE1t04X69gjlJ-rAxOTwX_fBowaio9BrYaVpf0ExSTFNEhi8IsrorHGzB_cP58nHrZBUFNP93Y8JdhJYx-L6PmYdYvAQp2eurV5vgsNC4QcH1qeIKASSq_nqgEl98DApwUdVn3iXC0a_Da5tolOhJ8tqojKS9xEFugKvGrbFfBL5hi35xQVG3Pg7ZRoQwSpJ17Hk65f' },
-        { id: 'T-2023-003', name: 'Ms. Curie', email: 'curie@school.edu', department: 'Science', subject: 'Physics', status: 'On Leave', avatar: '' },
-    ];
+    const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setSearchTerm(e.target.value);
+        const timeoutId = setTimeout(() => setSearch(e.target.value), 500);
+        return () => clearTimeout(timeoutId);
+    };
+
+    const handleDelete = async (id: string, name: string) => {
+        if (confirm(`Are you sure you want to terminate the contract and remove record for ${name}?`)) {
+            try {
+                await teachersService.delete(id);
+                refetch();
+            } catch (err: any) {
+                alert(err.message || 'Failed to remove teacher record.');
+            }
+        }
+    };
 
     return (
-        <AuthGuard>
-            <RoleGuard allowedRoles={[USER_ROLES.SUPER_ADMIN, USER_ROLES.SCHOOL_ADMIN]}>
-                <AdminLayout>
-                    <Head>
-                        <title>Teachers List - School ERP</title>
-                    </Head>
+        <AdminLayout title="Faculty Directory">
+            <Head>
+                <title>Faculty Directory - EduCore</title>
+            </Head>
 
-                    <div className="space-y-6">
-                        {/* Breadcrumbs */}
-                        <nav className="flex items-center text-sm text-slate-500">
-                            <Link href="/admin/dashboard" className="hover:text-primary transition-colors">Home</Link>
-                            <span className="material-symbols-outlined text-[16px] mx-2">chevron_right</span>
-                            <span className="text-slate-900 dark:text-white font-medium">Teachers</span>
-                        </nav>
-
-                        {/* Page Header */}
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                            <div>
-                                <h1 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Teacher Management</h1>
-                                <p className="mt-1 text-slate-500 dark:text-slate-400">Manage faculty members and assignments.</p>
-                            </div>
-                            <Link href="/admin/teachers/add" className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-primary hover:bg-blue-600 text-white font-medium rounded-lg shadow-sm hover:shadow transition-all active:scale-95">
-                                <span className="material-symbols-outlined text-[20px]">add</span>
-                                <span>Add New Teacher</span>
-                            </Link>
-                        </div>
-
-                        {/* Filters */}
-                        <div className="bg-white dark:bg-[#1a2632] p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
-                            <div className="flex flex-col md:flex-row gap-4 justify-between items-center">
-                                <div className="flex flex-col sm:flex-row w-full md:w-auto gap-3">
-                                    <div className="relative min-w-[140px]">
-                                        <select
-                                            className="w-full pl-3 pr-10 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-700 dark:text-slate-200 focus:ring-primary focus:border-primary appearance-none cursor-pointer"
-                                            value={filterDept}
-                                            onChange={(e) => setFilterDept(e.target.value)}
-                                        >
-                                            <option value="">All Departments</option>
-                                            <option value="Mathematics">Mathematics</option>
-                                            <option value="Science">Science</option>
-                                            <option value="Languages">Languages</option>
-                                        </select>
-                                        <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-[20px]">expand_more</span>
-                                    </div>
-                                    <div className="relative min-w-[140px]">
-                                        <select
-                                            className="w-full pl-3 pr-10 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-700 dark:text-slate-200 focus:ring-primary focus:border-primary appearance-none cursor-pointer"
-                                            value={filterStatus}
-                                            onChange={(e) => setFilterStatus(e.target.value)}
-                                        >
-                                            <option value="">Any Status</option>
-                                            <option value="Active">Active</option>
-                                            <option value="On Leave">On Leave</option>
-                                        </select>
-                                        <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-[20px]">expand_more</span>
-                                    </div>
-                                </div>
-                                <div className="flex flex-col sm:flex-row w-full md:w-auto gap-3">
-                                    <div className="relative w-full sm:w-80">
-                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-400 text-[20px]">search</span>
-                                        <input className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-primary focus:border-primary" placeholder="Search teacher..." type="text" />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Table */}
-                        <div className="bg-white dark:bg-[#1a2632] rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
-                            <div className="overflow-x-auto">
-                                <table className="w-full text-left text-sm">
-                                    <thead className="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-800">
-                                        <tr>
-                                            <th className="px-6 py-4 w-12"><input className="h-4 w-4 rounded border-slate-300 text-primary focus:ring-primary" type="checkbox" /></th>
-                                            <th className="px-6 py-4 font-semibold text-slate-900 dark:text-white">Teacher</th>
-                                            <th className="px-6 py-4 font-semibold text-slate-900 dark:text-white">Employee ID</th>
-                                            <th className="px-6 py-4 font-semibold text-slate-900 dark:text-white">Department</th>
-                                            <th className="px-6 py-4 font-semibold text-slate-900 dark:text-white">Status</th>
-                                            <th className="px-6 py-4 font-semibold text-slate-900 dark:text-white text-right">Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
-                                        {teachers.map((teacher, i) => (
-                                            <tr key={i} className="group hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                                                <td className="px-6 py-4"><input className="h-4 w-4 rounded border-slate-300 text-primary focus:ring-primary" type="checkbox" /></td>
-                                                <td className="px-6 py-4">
-                                                    <div className="flex items-center gap-3">
-                                                        {teacher.avatar ? (
-                                                            <div className="h-9 w-9 rounded-full bg-cover bg-center" style={{ backgroundImage: `url('${teacher.avatar}')` }}></div>
-                                                        ) : (
-                                                            <div className="h-9 w-9 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-500 font-bold text-xs">{teacher.name.substring(0, 2).toUpperCase()}</div>
-                                                        )}
-                                                        <div>
-                                                            <div className="font-medium text-slate-900 dark:text-white">{teacher.name}</div>
-                                                            <div className="text-xs text-slate-500">{teacher.email}</div>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td className="px-6 py-4 font-mono text-slate-600 dark:text-slate-300">{teacher.id}</td>
-                                                <td className="px-6 py-4 text-slate-600 dark:text-slate-300">
-                                                    <div>{teacher.department}</div>
-                                                    <div className="text-xs text-slate-500">{teacher.subject}</div>
-                                                </td>
-                                                <td className="px-6 py-4">
-                                                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${teacher.status === 'Active' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'}`}>
-                                                        {teacher.status}
-                                                    </span>
-                                                </td>
-                                                <td className="px-6 py-4 text-right">
-                                                    <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                        <Link href="/admin/teachers/edit" className="p-1.5 text-slate-400 hover:text-primary transition-colors rounded">
-                                                            <span className="material-symbols-outlined text-[20px]">edit</span>
-                                                        </Link>
-                                                        <button className="p-1.5 text-slate-400 hover:text-red-500 transition-colors rounded">
-                                                            <span className="material-symbols-outlined text-[20px]">delete</span>
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-
-                            {/* Pagination */}
-                            <div className="px-6 py-4 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
-                                <div className="text-sm text-slate-500 dark:text-slate-400">Showing 1 to 3 of 42 results</div>
-                                <div className="flex gap-2">
-                                    <button className="px-3 py-1 text-sm border rounded text-slate-600 hover:bg-slate-50">Previous</button>
-                                    <button className="px-3 py-1 text-sm border rounded text-slate-600 hover:bg-slate-50">Next</button>
-                                </div>
-                            </div>
-                        </div>
+            {/* Header Section */}
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+                <div className="flex flex-col gap-1">
+                    <div className="flex items-center gap-2 text-primary mb-1">
+                        <ShieldCheck size={16} />
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em]">Authorized Faculty Access</span>
                     </div>
-                </AdminLayout>
-            </RoleGuard>
-        </AuthGuard>
+                    <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight">Faculty Directory</h1>
+                    <p className="text-slate-500 dark:text-slate-400 font-medium italic">Comprehensive management of institutional academic personnel.</p>
+                </div>
+                <div className="flex gap-4">
+                    <button
+                        onClick={() => router.push('/admin/teachers/add')}
+                        className="px-8 py-4 bg-primary text-white rounded-2xl font-black text-sm shadow-xl shadow-primary/20 hover:-translate-y-1 active:scale-95 transition-all flex items-center gap-2"
+                    >
+                        <Plus size={18} />
+                        Onboard Faculty
+                    </button>
+                </div>
+            </div>
+
+            {/* Utilities & Search */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-10">
+                <div className="lg:col-span-8 flex flex-col md:flex-row gap-4">
+                    <div className="flex-1 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-2 flex items-center shadow-sm">
+                        <div className="h-10 w-10 flex items-center justify-center text-slate-400">
+                            <Search size={18} />
+                        </div>
+                        <input
+                            type="text"
+                            placeholder="Search faculty name, ID, or department..."
+                            className="flex-1 bg-transparent border-none outline-none text-sm font-bold text-slate-900 dark:text-white placeholder:text-slate-400 px-2"
+                            value={searchTerm}
+                            onChange={handleSearch}
+                        />
+                    </div>
+                    <div className="flex bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-2 shadow-sm">
+                        <select
+                            onChange={(e) => setFilter({ status: e.target.value })}
+                            className="bg-transparent border-none outline-none text-xs font-black uppercase tracking-widest text-slate-500 px-4 cursor-pointer"
+                        >
+                            <option value="">Status Protocol</option>
+                            <option value="ACTIVE">Verified Active</option>
+                            <option value="INACTIVE">Protocol Suspended</option>
+                        </select>
+                    </div>
+                </div>
+                <div className="lg:col-span-4 bg-slate-900 text-white rounded-[2rem] p-6 flex items-center justify-between shadow-xl shadow-slate-900/10">
+                    <div>
+                        <p className="text-[10px] font-black uppercase tracking-widest opacity-60 mb-1">Total Faculty Count</p>
+                        <h4 className="text-2xl font-black tracking-tight">{total} Entities</h4>
+                    </div>
+                    <div className="size-12 rounded-2xl bg-white/10 flex items-center justify-center">
+                        <Users size={24} />
+                    </div>
+                </div>
+            </div>
+
+            {/* Error State */}
+            {error && (
+                <div className="p-10 bg-rose-500/10 border border-rose-500/20 text-rose-500 rounded-[2.5rem] flex flex-col items-center justify-center text-center gap-4 mb-10 animate-in fade-in zoom-in">
+                    <AlertCircle size={48} />
+                    <div className="space-y-1">
+                        <h3 className="text-xl font-black uppercase tracking-widest">Data Synchronization Failure</h3>
+                        <p className="font-bold italic">{error}</p>
+                    </div>
+                    <button onClick={() => refetch()} className="px-6 py-2 bg-rose-500 text-white rounded-xl font-bold text-xs uppercase tracking-widest">Retry Authorization</button>
+                </div>
+            )}
+
+            {/* Results Grid - Using a Table for Teachers but with Premium Styling */}
+            <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+                <div className="overflow-x-auto overflow-y-hidden custom-scrollbar">
+                    <table className="w-full text-left border-collapse">
+                        <thead>
+                            <tr className="border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/20">
+                                <th className="px-8 py-6 text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Faculty Entity</th>
+                                <th className="px-8 py-6 text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Departmental Matrix</th>
+                                <th className="px-8 py-6 text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Communication Endpoints</th>
+                                <th className="px-8 py-6 text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Registry Status</th>
+                                <th className="px-8 py-6 text-xs font-black text-slate-400 uppercase tracking-[0.2em] text-right">Operations</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                            {loading ? (
+                                [1, 2, 3, 4, 5].map(i => (
+                                    <tr key={i}>
+                                        <td className="px-8 py-6"><Skeleton className="h-12 w-48 rounded-xl" /></td>
+                                        <td className="px-8 py-6"><Skeleton className="h-12 w-40 rounded-xl" /></td>
+                                        <td className="px-8 py-6"><Skeleton className="h-12 w-48 rounded-xl" /></td>
+                                        <td className="px-8 py-6"><Skeleton className="h-10 w-24 rounded-full" /></td>
+                                        <td className="px-8 py-6"><Skeleton className="h-10 w-24 rounded-xl ml-auto" /></td>
+                                    </tr>
+                                ))
+                            ) : (
+                                teachers.map((teacher) => (
+                                    <tr key={teacher.id} className="group hover:bg-slate-50/50 dark:hover:bg-slate-800/10 transition-colors">
+                                        <td className="px-8 py-6 whitespace-nowrap">
+                                            <div className="flex items-center gap-4">
+                                                <div className="size-14 rounded-2xl bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 flex items-center justify-center font-black text-slate-400 text-lg group-hover:border-primary transition-colors shadow-sm overflow-hidden">
+                                                    {teacher.firstName.charAt(0)}{teacher.lastName.charAt(0)}
+                                                </div>
+                                                <div>
+                                                    <p className="font-black text-slate-900 dark:text-white text-base leading-tight">
+                                                        {teacher.firstName} {teacher.lastName}
+                                                    </p>
+                                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">
+                                                        ID: {teacher.id.slice(0, 8)}...
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td className="px-8 py-6 whitespace-nowrap">
+                                            <div className="flex flex-col gap-1">
+                                                <div className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300 font-bold text-sm">
+                                                    <Briefcase size={12} className="text-primary" />
+                                                    {teacher.department || 'General Matrix'}
+                                                </div>
+                                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic">
+                                                    {teacher.designation || 'Academic Staff'}
+                                                </p>
+                                            </div>
+                                        </td>
+                                        <td className="px-8 py-6 whitespace-nowrap">
+                                            <div className="flex flex-col gap-2">
+                                                <div className="flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-primary transition-colors cursor-pointer">
+                                                    <Mail size={12} />
+                                                    {teacher.email || 'No Digital Endpoint'}
+                                                </div>
+                                                <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                                    <Phone size={12} />
+                                                    {teacher.phone || 'Null Signal'}
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td className="px-8 py-6 whitespace-nowrap">
+                                            <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-emerald-500/20 bg-emerald-500/10 text-emerald-500 text-[10px] font-black uppercase tracking-widest animate-in slide-in-from-left-2`}>
+                                                <div className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                                Verified Active
+                                            </div>
+                                        </td>
+                                        <td className="px-8 py-6 whitespace-nowrap text-right">
+                                            <div className="flex items-center justify-end gap-2">
+                                                <button
+                                                    onClick={() => router.push(`/admin/teachers/edit/${teacher.id}`)}
+                                                    className="size-11 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-400 hover:bg-primary hover:text-white transition-all flex items-center justify-center shadow-sm"
+                                                >
+                                                    <Edit3 size={18} />
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDelete(teacher.id, `${teacher.firstName} ${teacher.lastName}`)}
+                                                    className="size-11 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-400 hover:bg-rose-500 hover:text-white transition-all flex items-center justify-center shadow-sm"
+                                                >
+                                                    <Trash2 size={18} />
+                                                </button>
+                                                <button
+                                                    onClick={() => router.push(`/admin/teachers/profile/${teacher.id}`)}
+                                                    className="size-11 rounded-xl bg-slate-900 text-white hover:bg-primary transition-all flex items-center justify-center shadow-xl shadow-slate-900/10"
+                                                >
+                                                    <ArrowRight size={18} />
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+
+                {/* Dynamic Pagination */}
+                <div className="px-8 py-8 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-6">
+                    <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] italic">
+                        Displaying {teachers.length} of {total} verified faculty entities.
+                    </div>
+                    <div className="flex items-center gap-3">
+                        <button
+                            disabled={params.page === 1}
+                            onClick={() => setPage(params.page! - 1)}
+                            className="px-6 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 text-xs font-black uppercase tracking-widest text-slate-500 disabled:opacity-30 hover:bg-primary hover:text-white transition-all"
+                        >
+                            Previous Cycle
+                        </button>
+                        <div className="size-10 rounded-xl bg-slate-900 text-white flex items-center justify-center text-xs font-black shadow-lg shadow-slate-900/10">
+                            {params.page}
+                        </div>
+                        <button
+                            disabled={params.page! * params.limit! >= total}
+                            onClick={() => setPage(params.page! + 1)}
+                            className="px-6 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 text-xs font-black uppercase tracking-widest text-slate-500 disabled:opacity-30 hover:bg-primary hover:text-white transition-all"
+                        >
+                            Next Cycle
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {!loading && teachers.length === 0 && (
+                <div className="mt-10 p-20 bg-slate-50 dark:bg-slate-800/10 rounded-[3rem] border-4 border-dashed border-slate-100 dark:border-slate-800 flex flex-col items-center justify-center text-center space-y-6">
+                    <div className="size-24 rounded-[2.5rem] bg-white dark:bg-slate-800 flex items-center justify-center text-slate-200 shadow-xl shadow-primary/5">
+                        <Search size={48} />
+                    </div>
+                    <div className="space-y-2">
+                        <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-widest uppercase">Null Results In Directory</h3>
+                        <p className="text-slate-500 italic max-w-sm">No faculty entities match your current synchronization criteria within the institutional data vault.</p>
+                    </div>
+                    <button
+                        onClick={() => { setSearch(''); setSearchTerm(''); }}
+                        className="px-8 py-4 bg-primary text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20"
+                    >
+                        Reset Signal Matrix
+                    </button>
+                </div>
+            )}
+        </AdminLayout>
     );
 }

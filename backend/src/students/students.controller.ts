@@ -13,6 +13,7 @@ import { StudentsService } from './students.service';
 import { CreateStudentDto } from './dto/create-student.dto';
 import { UpdateStudentDto } from './dto/update-student.dto';
 import { ListStudentsDto } from './dto/list-students.dto';
+import { PromoteStudentsDto } from './dto/promote-student.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard, Roles } from '../common/guards/roles.guard';
 import { CurrentUser } from '../common/decorators/user.decorator';
@@ -21,7 +22,7 @@ import { Role } from '@prisma/client';
 @Controller('students')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class StudentsController {
-  constructor(private readonly studentsService: StudentsService) {}
+  constructor(private readonly studentsService: StudentsService) { }
 
   @Post()
   @Roles(Role.SCHOOL_ADMIN)
@@ -30,6 +31,19 @@ export class StudentsController {
     @CurrentUser() user: any,
   ) {
     return this.studentsService.create(createStudentDto, {
+      userId: user.userId,
+      role: user.role,
+      schoolId: user.schoolId,
+    });
+  }
+
+  @Post('promote')
+  @Roles(Role.SCHOOL_ADMIN)
+  promote(
+    @Body() promoteStudentsDto: PromoteStudentsDto,
+    @CurrentUser() user: any,
+  ) {
+    return this.studentsService.promote(promoteStudentsDto, {
       userId: user.userId,
       role: user.role,
       schoolId: user.schoolId,

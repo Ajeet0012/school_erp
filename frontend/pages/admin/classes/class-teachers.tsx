@@ -1,6 +1,3 @@
-/**
- * Class Teachers Page
- * Thin routing file - exports from module
- */
+import { default as ClassTeachersModule } from '@/modules/admin/academic/classes/ClassTeachers';
 
-export { default } from '@/modules/admin/classes/class-teachers/ClassTeachers';
+export default ClassTeachersModule;

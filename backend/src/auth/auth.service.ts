@@ -13,7 +13,7 @@ export class AuthService {
     private jwtService: JwtService,
     private configService: ConfigService,
     private prisma: PrismaService,
-  ) {}
+  ) { }
 
   async register(registerDto: RegisterDto) {
     const { email, password, firstName, lastName } = registerDto;
@@ -38,7 +38,7 @@ export class AuthService {
         firstName,
         lastName,
         // Default role is student, schoolId is optional for now
-        role: 'STUDENT', 
+        role: 'STUDENT',
       },
     });
 
@@ -119,6 +119,31 @@ export class AuthService {
       return result;
     }
     return null;
+  }
+
+  async forgotPassword(email: string) {
+    // Mock implementation for development
+    // In production, this should generate a token and send an email
+    console.log(`[Mock] Password reset requested for ${email}`);
+    return { message: 'If the email exists, a password reset link has been sent.' };
+  }
+
+  async resetPassword(resetDto: any) {
+    // Mock implementation for development
+    console.log(`[Mock] Password reset with token: ${resetDto.token}`);
+    return { message: 'Password has been reset successfully.' };
+  }
+
+  async verifyOTP(otp: string) {
+    // Mock implementation
+    console.log(`[Mock] Verify OTP: ${otp}`);
+    return { valid: true };
+  }
+
+  async changePassword(changePasswordDto: any) {
+    // Mock implementation
+    console.log(`[Mock] Change password for user`);
+    return { message: 'Password changed successfully' };
   }
 }
 

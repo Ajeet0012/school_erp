@@ -1,260 +1,350 @@
 import Head from 'next/head';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import AdminLayout from '@/components/layouts/AdminLayout';
+import { useStudent } from '@/hooks/useStudent';
+import { useClasses } from '@/hooks/useClasses';
+import { studentSchema, StudentSchema } from '@/utils/validation';
+import { studentsService } from '@/services/students.service';
+import Skeleton from '@/components/ui/Skeleton';
+import {
+  Fingerprint,
+  School,
+  Users,
+  FileText,
+  ChevronRight,
+  Save,
+  X,
+  Camera,
+  AlertCircle,
+  CheckCircle2
+} from 'lucide-react';
+
+const tabs = [
+  { id: 'personal', label: 'Identity Matrix', icon: Fingerprint, color: 'primary' },
+  { id: 'academic', label: 'Academic Protocol', icon: School, color: 'info' },
+  { id: 'guardian', label: 'Nexus Contacts', icon: Users, color: 'success' },
+  { id: 'documents', label: 'Data Archives', icon: FileText, color: 'warning' },
+];
 
 export default function EditStudent() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState('personal');
-  const [loading, setLoading] = useState(false);
+  const { id } = router.query;
+  const { student, loading: studentLoading, error: studentError, refetch } = useStudent(id);
+  const { classes, loading: classesLoading } = useClasses();
 
-  // Mock data for student
-  const [formData, setFormData] = useState({
-    id: 'S-2024-0842',
-    firstName: 'Alex',
-    lastName: 'Johnson',
-    avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDltbWj1ZPUOEhaOezhRQBneKqq8udX0IX534Vy4Ouc8i0ZSOFu2XDwBd9jvjlpE8PpGwfljzne-m3tsqW6VTPV9ug72kbG6cb5ZVLtnQAFub9RisOxhwx6VPh_0MWsy_xOLZrSG4wwiZ_ZznoBjP5oE3PjWjq2Ajn3W9ND9IAWfukmvFjiVPcj5qIPR-N2Fh7rB29U63uHwFH1Er-k4YUOhNXYoTfrFNdqUHIchynFwFNIl4WyKqmQ9yzV-7CknZOTJgzw9vAIMYE-',
-    email: 'alex.j@educore.edu',
-    phone: '+1 (555) 123-4567',
-    dob: '2008-04-12',
-    gender: 'MALE',
-    class: '10',
-    section: 'A',
-    fatherName: 'Robert Johnson',
-    guardianEmail: 'robert.j@nexus.com',
-    address: '1288 Digital Drive, Silicon Valley, CA 94025',
+  const [activeTab, setActiveTab] = useState('personal');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm<StudentSchema>({
+    resolver: zodResolver(studentSchema),
   });
 
-  const tabs = [
-    { id: 'personal', label: 'Identity Matrix', icon: 'fingerprint' },
-    { id: 'academic', label: 'Academic Protocol', icon: 'school' },
-    { id: 'guardian', label: 'Nexus Contacts', icon: 'family_restroom' },
-    { id: 'documents', label: 'Data Archives', icon: 'folder_open' },
-  ];
+  useEffect(() => {
+    if (student) {
+      reset({
+        firstName: student.firstName || '',
+        lastName: student.lastName || '',
+        email: student.email || '',
+        phone: student.phone || '',
+        admissionNumber: student.admissionNumber || '',
+        dateOfBirth: student.dateOfBirth || '',
+        gender: student.gender || 'MALE',
+        address: student.address || '',
+        classId: student.classId || '',
+        sectionId: student.sectionId || '',
+        parentId: student.parentId || '',
+      });
+    }
+  }, [student, reset]);
 
-  const handleUpdate = () => {
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      router.push('/admin/students');
-    }, 1500);
+  const onCommit = async (data: StudentSchema) => {
+    if (!id || typeof id !== 'string') return;
+
+    setIsSubmitting(true);
+    setSubmitError(null);
+    setSubmitSuccess(false);
+
+    try {
+      await studentsService.update(id, data);
+      setSubmitSuccess(true);
+      setTimeout(() => {
+        router.push('/admin/students');
+      }, 1500);
+    } catch (err: any) {
+      setSubmitError(err.message || 'Transmission failure during data commit.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  return (
-    <AdminLayout>
-      <Head>
-        <title>Modify Protocol - {formData.firstName} - EduCore</title>
-      </Head>
-
-      {/* Navigation & Breadcrumbs */}
-      <div className="flex flex-col gap-1 pb-6">
-        <nav className="flex items-center gap-2 text-sm mb-4 text-slate-500 dark:text-slate-400">
-          <span className="hover:text-primary transition-colors cursor-pointer" onClick={() => router.push('/admin/dashboard')}>Main Console</span>
-          <span className="material-icons-round text-[16px]">chevron_right</span>
-          <span className="hover:text-primary transition-colors cursor-pointer" onClick={() => router.push('/admin/students')}>Identity Directory</span>
-          <span className="material-icons-round text-[16px]">chevron_right</span>
-          <span className="font-medium text-slate-900 dark:text-white underline decoration-primary decoration-2 underline-offset-4">Modify Protocol</span>
-        </nav>
-      </div>
-
-      {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
-        <div className="flex flex-col gap-1">
-          <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight">Modify Protocol</h1>
-          <p className="text-slate-500 dark:text-slate-400 font-medium italic">Updating established data matrices for entity {formData.id}.</p>
-        </div>
-        <div className="flex gap-4">
-          <button
-            onClick={() => router.back()}
-            className="px-8 py-4 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-2xl font-black text-sm hover:bg-slate-200 dark:hover:bg-slate-700 transition-all flex items-center gap-2"
-          >
-            Abort Changes
-          </button>
-          <button
-            onClick={handleUpdate}
-            disabled={loading}
-            className="px-8 py-4 bg-primary text-white rounded-2xl font-black text-sm shadow-xl shadow-primary/20 hover:-translate-y-1 active:scale-95 transition-all flex items-center gap-2 disabled:opacity-50"
-          >
-            <span className="material-icons-round text-lg">{loading ? 'sync' : 'save'}</span>
-            {loading ? 'Processing...' : 'Commit Changes'}
-          </button>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-        {/* Left Sidebar: Tabs */}
-        <div className="lg:col-span-3">
-          <div className="bg-white dark:bg-card-dark rounded-[2.5rem] border border-slate-200 dark:border-slate-800 p-4 sticky top-10 shadow-[0_20px_50px_rgba(0,0,0,0.02)]">
-            <div className="flex flex-col gap-2">
-              {tabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-4 px-6 py-4 rounded-2xl text-sm font-black transition-all ${activeTab === tab.id
-                      ? 'bg-primary text-white shadow-lg shadow-primary/20'
-                      : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900'
-                    }`}
-                >
-                  <span className="material-icons-round">{tab.icon}</span>
-                  {tab.label}
-                </button>
-              ))}
+  if (studentLoading) {
+    return (
+      <AdminLayout title="Modifying Record...">
+        <div className="space-y-8">
+          <Skeleton className="h-20 w-full rounded-2xl" />
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+            <div className="lg:col-span-3 space-y-4">
+              <Skeleton className="h-12 w-full rounded-xl" />
+              <Skeleton className="h-12 w-full rounded-xl" />
+              <Skeleton className="h-12 w-full rounded-xl" />
+            </div>
+            <div className="lg:col-span-9">
+              <Skeleton className="h-[500px] w-full rounded-3xl" />
             </div>
           </div>
         </div>
+      </AdminLayout>
+    );
+  }
 
-        {/* Right Content Area */}
-        <div className="lg:col-span-9">
-          <div className="space-y-10 pb-20">
-            {/* Step 1: Identity Matrix */}
+  if (studentError) {
+    return (
+      <AdminLayout title="System Error">
+        <div className="flex flex-col items-center justify-center min-h-[400px] text-center space-y-4">
+          <div className="p-4 rounded-full bg-rose-500/10 text-rose-500">
+            <AlertCircle size={48} />
+          </div>
+          <h2 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-widest">Access Denied</h2>
+          <p className="text-slate-500 max-w-sm italic">{studentError}</p>
+          <button onClick={() => refetch()} className="px-6 py-2 bg-primary text-white rounded-xl font-bold">Retry Authorization</button>
+        </div>
+      </AdminLayout>
+    );
+  }
+
+  return (
+    <AdminLayout title={`Modify Record: ${student?.firstName} ${student?.lastName}`}>
+      <Head>
+        <title>Modify Record - {student?.firstName} - EduCore</title>
+      </Head>
+
+      <form onSubmit={handleSubmit(onCommit)} className="space-y-10">
+        {/* Header Section */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2 text-primary">
+              <Fingerprint size={20} />
+              <span className="text-[10px] font-black uppercase tracking-[0.2em]">Administrative Override</span>
+            </div>
+            <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Record Modulation</h1>
+            <p className="text-slate-500 dark:text-slate-400 font-medium italic">Adjusting established data matrices for entity {student?.admissionNumber}.</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => router.back()}
+              className="flex items-center gap-2 px-6 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-bold text-slate-500 hover:text-rose-500 transition-all active:scale-95"
+            >
+              <X size={18} />
+              Abort
+            </button>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="flex items-center gap-2 px-8 py-3 bg-primary text-white rounded-xl text-sm font-black shadow-lg shadow-primary/20 hover:-translate-y-0.5 active:scale-95 transition-all disabled:opacity-50"
+            >
+              {isSubmitting ? <Activity className="animate-spin" size={18} /> : <Save size={18} />}
+              {isSubmitting ? 'Syncing...' : 'Commit Changes'}
+            </button>
+          </div>
+        </div>
+
+        {submitSuccess && (
+          <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
+            <CheckCircle2 size={20} />
+            <span className="text-sm font-bold">Protocol successful. Redirecting to main directory...</span>
+          </div>
+        )}
+
+        {submitError && (
+          <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-600 flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
+            <AlertCircle size={20} />
+            <span className="text-sm font-bold">{submitError}</span>
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+          {/* Sidebar Tabs */}
+          <div className="lg:col-span-3">
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-3 space-y-2 sticky top-24 shadow-sm">
+              {tabs.map((tab) => {
+                const Icon = tab.icon;
+                const isActive = activeTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`flex items-center gap-4 w-full px-5 py-4 rounded-2xl text-sm font-black transition-all ${isActive
+                        ? 'bg-primary text-white shadow-xl shadow-primary/20 translate-x-1'
+                        : 'text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-primary'
+                      }`}
+                  >
+                    <Icon size={20} />
+                    {tab.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Form Content Area */}
+          <div className="lg:col-span-9 page-transition">
             {activeTab === 'personal' && (
-              <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div className="bg-white dark:bg-card-dark rounded-[2.5rem] border border-slate-200 dark:border-slate-800 p-10 lg:p-12 shadow-[0_20px_50px_rgba(0,0,0,0.02)]">
-                  <div className="flex items-center gap-6 mb-12">
-                    <div className="relative group">
-                      <div className="size-24 rounded-3xl overflow-hidden border-4 border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none bg-slate-100">
-                        <img src={formData.avatar} alt="Avatar" className="w-full h-full object-cover" />
-                      </div>
-                      <button className="absolute -bottom-2 -right-2 size-10 rounded-2xl bg-primary text-white flex items-center justify-center border-4 border-white dark:border-card-dark shadow-lg hover:scale-110 transition-transform">
-                        <span className="material-icons-round text-lg">photo_camera</span>
-                      </button>
+              <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] p-10 shadow-sm space-y-10">
+                <div className="flex items-center gap-6">
+                  <div className="relative group">
+                    <div className="size-20 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center font-black text-2xl text-slate-400 overflow-hidden border-2 border-slate-200 dark:border-slate-700">
+                      {student?.firstName?.charAt(0)}{student?.lastName?.charAt(0)}
                     </div>
-                    <div>
-                      <h3 className="text-2xl font-black text-slate-900 dark:text-white">Identity Matrix</h3>
-                      <p className="text-slate-500 dark:text-slate-400 font-medium">Core biological and identification data.</p>
-                    </div>
+                    <button type="button" className="absolute -bottom-2 -right-2 p-2 bg-primary text-white rounded-xl border-4 border-white dark:border-slate-900 shadow-lg scale-90 group-hover:scale-100 transition-transform">
+                      <Camera size={14} />
+                    </button>
                   </div>
+                  <div>
+                    <h3 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">Identity Matrix</h3>
+                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Core Registry Data</p>
+                  </div>
+                </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <FormField label="First Identifier" value={formData.firstName} onChange={(v) => setFormData({ ...formData, firstName: v })} />
-                    <FormField label="Last Identifier" value={formData.lastName} onChange={(v) => setFormData({ ...formData, lastName: v })} />
-                    <FormField label="Temporal Origin (DOB)" value={formData.dob} type="date" onChange={(v) => setFormData({ ...formData, dob: v })} />
-                    <SelectField
-                      label="Gender Archetype"
-                      value={formData.gender}
-                      options={[{ v: 'MALE', l: 'Male' }, { v: 'FEMALE', l: 'Female' }, { v: 'OTHER', l: 'Non-Binary' }]}
-                      onChange={(v) => setFormData({ ...formData, gender: v })}
-                    />
-                    <FormField label="Primary Signal (Phone)" value={formData.phone} type="tel" onChange={(v) => setFormData({ ...formData, phone: v })} />
-                    <FormField label="Digital Endpoint (Email)" value={formData.email} type="email" onChange={(v) => setFormData({ ...formData, email: v })} />
-                  </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <FormInput label="First Identifier" {...register('firstName')} error={errors.firstName?.message} />
+                  <FormInput label="Last Identifier" {...register('lastName')} error={errors.lastName?.message} />
+                  <FormInput label="Digital Endpoint (Email)" type="email" {...register('email')} error={errors.email?.message} />
+                  <FormInput label="Primary Signal (Phone)" type="tel" {...register('phone')} error={errors.phone?.message} />
+                  <FormInput label="Admission Number" {...register('admissionNumber')} error={errors.admissionNumber?.message} />
+                  <FormInput label="Temporal Origin (DOB)" type="date" {...register('dateOfBirth')} error={errors.dateOfBirth?.message} />
+                  <FormSelect
+                    label="Gender Axis"
+                    {...register('gender')}
+                    options={[
+                      { value: 'MALE', label: 'Male' },
+                      { value: 'FEMALE', label: 'Female' },
+                      { value: 'OTHER', label: 'Non-Binary' }
+                    ]}
+                    error={errors.gender?.message}
+                  />
                 </div>
               </div>
             )}
 
-            {/* Step 2: Academic Protocol */}
             {activeTab === 'academic' && (
-              <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div className="bg-white dark:bg-card-dark rounded-[2.5rem] border border-slate-200 dark:border-slate-800 p-10 lg:p-12 shadow-[0_20px_50px_rgba(0,0,0,0.02)]">
-                  <div className="flex items-center gap-4 mb-10">
-                    <div className="h-12 w-12 rounded-2xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center">
-                      <span className="material-icons-round">school</span>
-                    </div>
-                    <div>
-                      <h3 className="text-2xl font-black text-slate-900 dark:text-white">Academic Protocol</h3>
-                      <p className="text-slate-500 dark:text-slate-400 font-medium">System assignment and hierarchy.</p>
-                    </div>
+              <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] p-10 shadow-sm space-y-10">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 rounded-2xl bg-sky-500/10 text-sky-500">
+                    <School size={24} />
                   </div>
+                  <div>
+                    <h3 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">Academic Protocol</h3>
+                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">System Assignment Hierarchy</p>
+                  </div>
+                </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <FormField label="Admission ID" value={formData.id} disabled />
-                    <div className="hidden md:block"></div>
-                    <SelectField
-                      label="Academic Unit (Class)"
-                      value={formData.class}
-                      options={[{ v: '10', l: 'Grade 10' }, { v: '11', l: 'Grade 11' }, { v: '12', l: 'Grade 12' }]}
-                      onChange={(v) => setFormData({ ...formData, class: v })}
-                    />
-                    <SelectField
-                      label="Sector (Section)"
-                      value={formData.section}
-                      options={[{ v: 'A', l: 'Section A' }, { v: 'B', l: 'Section B' }, { v: 'C', l: 'Section C' }]}
-                      onChange={(v) => setFormData({ ...formData, section: v })}
-                    />
-                  </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <FormSelect
+                    label="Assigned Unit (Class)"
+                    {...register('classId')}
+                    options={classes.map(c => ({ value: c.id, label: c.name }))}
+                    error={errors.classId?.message}
+                    disabled={classesLoading}
+                  />
+                  <FormInput label="Residency Coordinates" {...register('address')} error={errors.address?.message} />
                 </div>
               </div>
             )}
 
-            {/* Other tabs follow the same pattern... */}
             {activeTab === 'guardian' && (
-              <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div className="bg-white dark:bg-card-dark rounded-[2.5rem] border border-slate-200 dark:border-slate-800 p-10 lg:p-12 shadow-[0_20px_50px_rgba(0,0,0,0.02)]">
-                  <div className="flex items-center gap-4 mb-10">
-                    <div className="h-12 w-12 rounded-2xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center">
-                      <span className="material-icons-round">family_restroom</span>
-                    </div>
-                    <div>
-                      <h3 className="text-2xl font-black text-slate-900 dark:text-white">Nexus Contacts</h3>
-                      <p className="text-slate-500 dark:text-slate-400 font-medium">Guardian and emergency routing.</p>
-                    </div>
+              <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] p-10 shadow-sm space-y-10">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 rounded-2xl bg-emerald-500/10 text-emerald-500">
+                    <Users size={24} />
                   </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <FormField label="Primary Guardian" value={formData.fatherName} onChange={(v) => setFormData({ ...formData, fatherName: v })} />
-                    <FormField label="Guardian Signal (Email)" value={formData.guardianEmail} type="email" onChange={(v) => setFormData({ ...formData, guardianEmail: v })} />
-                    <div className="md:col-span-2 space-y-2">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2">Residency Coordinates (Address)</label>
-                      <textarea
-                        rows={4}
-                        className="w-full px-6 py-4 bg-slate-50 dark:bg-slate-900 border-none rounded-2xl text-sm font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-primary/20 outline-none transition-all resize-none"
-                        value={formData.address}
-                        onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                      />
-                    </div>
+                  <div>
+                    <h3 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">Nexus Contacts</h3>
+                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Guardian Liaison Control</p>
                   </div>
+                </div>
+                <div className="p-12 text-center border-2 border-dashed border-slate-100 dark:border-slate-800 rounded-3xl">
+                  <p className="text-sm font-bold text-slate-400 italic">Advanced guardian management endpoints are being synchronized.</p>
                 </div>
               </div>
             )}
 
-            {(activeTab === 'documents') && (
-              <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div className="bg-white dark:bg-card-dark rounded-[2.5rem] border border-slate-200 dark:border-slate-800 p-10 lg:p-12 shadow-[0_20px_50px_rgba(0,0,0,0.02)] flex flex-col items-center justify-center min-h-[400px]">
-                  <div className="h-20 w-20 rounded-[2rem] bg-slate-100 dark:bg-slate-800 text-slate-400 flex items-center justify-center mb-6">
-                    <span className="material-icons-round text-4xl">folder_off</span>
+            {activeTab === 'documents' && (
+              <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] p-10 shadow-sm space-y-10">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 rounded-2xl bg-amber-500/10 text-amber-500">
+                    <FileText size={24} />
                   </div>
-                  <h3 className="text-xl font-black text-slate-900 dark:text-white mb-2">No Archives Present</h3>
-                  <p className="text-slate-500 dark:text-slate-400 text-center max-w-xs font-medium italic">Document management protocols are currently being optimized.</p>
+                  <div>
+                    <h3 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">Data Archives</h3>
+                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Static Document Storage</p>
+                  </div>
+                </div>
+                <div className="p-12 text-center border-2 border-dashed border-slate-100 dark:border-slate-800 rounded-3xl">
+                  <p className="text-sm font-bold text-slate-400 italic">Archive protocols are currently locked for optimization.</p>
                 </div>
               </div>
             )}
           </div>
         </div>
-      </div>
+      </form>
     </AdminLayout>
   );
 }
 
-function FormField({ label, value, type = 'text', disabled = false, onChange }: { label: string; value: string; type?: string; disabled?: boolean; onChange?: (v: string) => void }) {
-  return (
-    <div className="space-y-2">
-      <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2">{label}</label>
-      <input
-        type={type}
-        disabled={disabled}
-        value={value}
-        onChange={(e) => onChange?.(e.target.value)}
-        className="w-full px-6 py-4 bg-slate-50 dark:bg-slate-900 border-none rounded-2xl text-sm font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-primary/20 outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-      />
-    </div>
-  );
-}
+const FormInput = ({ label, error, ...props }: any) => (
+  <div className="flex flex-col gap-2">
+    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2">{label}</label>
+    <input
+      {...props}
+      className={`px-5 py-3.5 bg-slate-50 dark:bg-slate-800/50 border-none rounded-xl text-sm font-bold text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-primary/20 transition-all ${error ? 'ring-2 ring-rose-500/50' : ''}`}
+    />
+    {error && <p className="text-[10px] font-black text-rose-500 uppercase tracking-tighter ml-2">{error}</p>}
+  </div>
+);
 
-function SelectField({ label, value, options, onChange }: { label: string; value: string; options: { v: string; l: string }[]; onChange: (v: string) => void }) {
-  return (
-    <div className="space-y-2">
-      <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2">{label}</label>
-      <div className="relative">
-        <select
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          className="w-full px-6 py-4 bg-slate-50 dark:bg-slate-900 border-none rounded-2xl text-sm font-bold text-slate-900 dark:text-white appearance-none focus:ring-2 focus:ring-primary/20 outline-none transition-all cursor-pointer"
-        >
-          {options.map(opt => <option key={opt.v} value={opt.v}>{opt.l}</option>)}
-        </select>
-        <span className="material-icons-round absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">expand_more</span>
-      </div>
-    </div>
-  );
-}
+const FormSelect = ({ label, options, error, ...props }: any) => (
+  <div className="flex flex-col gap-2">
+    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2">{label}</label>
+    <select
+      {...props}
+      className={`px-5 py-3.5 bg-slate-50 dark:bg-slate-800/50 border-none rounded-xl text-sm font-bold text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-primary/20 transition-all ${error ? 'ring-2 ring-rose-500/50' : ''}`}
+    >
+      <option value="">Select Option</option>
+      {options.map((opt: any) => (
+        <option key={opt.value} value={opt.value}>{opt.label}</option>
+      ))}
+    </select>
+    {error && <p className="text-[10px] font-black text-rose-500 uppercase tracking-tighter ml-2">{error}</p>}
+  </div>
+);
+
+const Activity = ({ className, size }: any) => (
+  <svg
+    className={className}
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+  </svg>
+);
 

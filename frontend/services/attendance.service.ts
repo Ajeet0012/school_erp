@@ -16,6 +16,11 @@ class AttendanceService {
     return response.data;
   }
 
+  async markBulkAttendance(data: any) {
+    const response = await apiClient.post(`${API_ENDPOINTS.ATTENDANCE}/bulk`, data);
+    return response.data;
+  }
+
   async getStudentAttendance(params: any) {
     const response = await apiClient.get(`${API_ENDPOINTS.ATTENDANCE}/students`, { params });
     return response.data!;

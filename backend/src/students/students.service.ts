@@ -15,7 +15,7 @@ import { Role, Gender } from '@prisma/client';
 
 @Injectable()
 export class StudentsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   /**
    * Create student linked to User
@@ -721,5 +721,55 @@ export class StudentsService {
         message: `Student has been deleted successfully`,
       };
     });
+  }
+
+
+  /**
+   * Promote students to a new class
+   */
+  async promote(
+    promoteStudentsDto: any, // Using any temporarily to avoid import issues if dto not picked up immediately, but ideally import it
+    currentUser: { userId: string; role: Role; schoolId?: string },
+  ) {
+    if (currentUser.role !== Role.SCHOOL_ADMIN) {
+      throw new ForbiddenException('Only SCHOOL_ADMIN can promote students');
+    }
+
+    if (!currentUser.schoolId) {
+      throw new ForbiddenException('School admin must be associated with a school');
+    }
+
+    const { studentIds, targetClassId } = promoteStudentsDto;
+
+    // Verify target class exists and belongs to school
+    const targetClass = await this.prisma.class.findUnique({
+      where: { id: targetClassId },
+    });
+
+    if (!targetClass) {
+      throw new NotFoundException(`Target class with ID ${targetClassId} not found`);
+    }
+
+    if (targetClass.schoolId !== currentUser.schoolId) {
+      throw new ForbiddenException('Target class must belong to the same school');
+    }
+
+    // Update students
+    // We use updateMany for efficiency
+    const result = await this.prisma.student.updateMany({
+      where: {
+        id: { in: studentIds },
+        schoolId: currentUser.schoolId, // Security check
+      },
+      data: {
+        classId: targetClassId,
+        sectionId: null, // Reset section on promotion as sections might differ
+      },
+    });
+
+    return {
+      message: `Successfully promoted ${result.count} students`,
+      count: result.count,
+    };
   }
 }

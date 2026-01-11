@@ -11,6 +11,10 @@ class HomeworkService {
     return response.data!;
   }
 
+  async getHomework(params?: any) {
+    return this.getAll(params);
+  }
+
   async getById(id: string) {
     const response = await apiClient.get(`${API_ENDPOINTS.HOMEWORK}/${id}`);
     return response.data;

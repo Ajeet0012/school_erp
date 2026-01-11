@@ -35,16 +35,16 @@ function TeacherLayoutContent({ children }: TeacherLayoutProps) {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-sm border-b">
+    <div className="min-h-screen bg-background">
+      <header className="bg-card shadow-soft border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <h1 className="text-xl font-semibold text-gray-900">School ERP - Teacher</h1>
+            <h1 className="text-xl font-semibold text-foreground">School ERP - Teacher</h1>
             <div className="flex items-center gap-4">
-              <span className="text-sm text-gray-600">{user?.firstName} {user?.lastName}</span>
+              <span className="text-sm text-muted-foreground">{user?.firstName} {user?.lastName}</span>
               <button
                 onClick={logout}
-                className="px-4 py-2 text-sm text-white bg-red-600 rounded-md hover:bg-red-700"
+                className="btn-primary px-4 py-2 text-sm"
               >
                 Logout
               </button>
@@ -52,35 +52,24 @@ function TeacherLayoutContent({ children }: TeacherLayoutProps) {
           </div>
         </div>
       </header>
-
-      <div className="flex">
-        <aside className="w-64 bg-white shadow-sm min-h-[calc(100vh-4rem)]">
-          <nav className="p-4">
-            <ul className="space-y-2">
-              {navItems.map((item) => {
-                const isActive = router.pathname === item.href;
-                return (
-                  <li key={item.href}>
-                    <Link
-                      href={item.href}
-                      className={`block px-4 py-2 rounded-md text-sm ${isActive
-                          ? 'bg-primary-100 text-primary-700 font-medium'
-                          : 'text-gray-700 hover:bg-gray-100'
-                        }`}
-                    >
-                      {item.label}
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-          </nav>
-        </aside>
-
-        <main className="flex-1 p-6">
-          {children}
-        </main>
-      </div>
+      <nav className="bg-card border-b border-border">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex space-x-8">
+            {navItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`nav-item ${router.pathname === item.href ? 'nav-item-active' : ''}`}
+              >
+                {item.label}
+              </Link>
+            ))}
+          </div>
+        </div>
+      </nav>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {children}
+      </main>
     </div>
   );
 }

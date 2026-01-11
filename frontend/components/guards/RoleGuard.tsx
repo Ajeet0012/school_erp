@@ -7,6 +7,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
+import { useAuth } from '@/hooks/useAuth';
 import { getDashboardRoute, isValidRole, hasRole, UserRole } from '@/utils/role-config';
 
 interface RoleGuardProps {
@@ -17,54 +18,35 @@ interface RoleGuardProps {
 
 export default function RoleGuard({ children, allowedRoles, redirectTo }: RoleGuardProps) {
   const router = useRouter();
-  const [authorized, setAuthorized] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const { user, loading, isAuthenticated } = useAuth();
+
+  const isAuthorized = !loading && isAuthenticated() && user && hasRole(user.role, allowedRoles);
+
+  console.log('[RoleGuard] Rendering:', { loading, isAuthorized, userRole: user?.role, allowedRoles });
 
   useEffect(() => {
-    if (typeof window === 'undefined') {
-      setLoading(false);
-      return;
-    }
+    if (loading) return;
 
-    const token = localStorage.getItem('access_token');
-    const userStr = localStorage.getItem('user');
-
-    if (!token || !userStr) {
+    if (!isAuthenticated() || !user) {
       router.push('/auth/login');
       return;
     }
 
-    try {
-      const user = JSON.parse(userStr);
-      const userRole = user.role as string;
+    const userRole = user.role;
 
-      // Validate role
-      if (!isValidRole(userRole)) {
-        // Invalid role - redirect to login
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('user');
-        router.push('/auth/login');
-        return;
-      }
-
-      // Check if user has required role
-      if (!hasRole(userRole, allowedRoles)) {
-        // Redirect to user's dashboard if role doesn't match
-        const dashboard = getDashboardRoute(userRole) || '/auth/login';
-        router.push(redirectTo || dashboard);
-        return;
-      }
-
-      setAuthorized(true);
-    } catch (error) {
-      // Invalid user data, redirect to login
-      localStorage.removeItem('access_token');
-      localStorage.removeItem('user');
+    // Validate role
+    if (!isValidRole(userRole)) {
       router.push('/auth/login');
-    } finally {
-      setLoading(false);
+      return;
     }
-  }, [router, allowedRoles, redirectTo]);
+
+    // Check if user has required role
+    if (!hasRole(userRole, allowedRoles)) {
+      // Redirect to user's dashboard if role doesn't match
+      const dashboard = getDashboardRoute(userRole) || '/auth/login';
+      router.push(redirectTo || dashboard);
+    }
+  }, [loading, user, isAuthenticated, router, allowedRoles, redirectTo]);
 
   if (loading) {
     return (
@@ -74,8 +56,8 @@ export default function RoleGuard({ children, allowedRoles, redirectTo }: RoleGu
     );
   }
 
-  if (!authorized) {
-    return null; // Don't render until authorization check
+  if (!isAuthorized) {
+    return null;
   }
 
   return <>{children}</>;

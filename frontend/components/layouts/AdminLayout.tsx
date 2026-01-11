@@ -1,198 +1,211 @@
-/**
- * Admin Layout Component
- * Shared layout for all admin (SCHOOL_ADMIN) pages
- * 
- * This layout automatically handles:
- * - Authentication (AuthGuard)
- * - Authorization (RoleGuard for SCHOOL_ADMIN role)
- * - Shared UI (Sidebar, Navbar, Shell)
- * 
- * Pages using this layout should contain ONLY UI/content.
- */
-
-import { ReactNode, useState } from 'react';
+import { ReactNode, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useAuth } from '@/hooks/useAuth';
 import AuthGuard from '@/components/guards/AuthGuard';
 import RoleGuard from '@/components/guards/RoleGuard';
 import { USER_ROLES } from '@/utils/role-config';
+import {
+  LayoutDashboard,
+  GraduationCap,
+  Users,
+  BookOpen,
+  CalendarCheck,
+  FileText,
+  Settings,
+  LogOut,
+  Search,
+  Bell,
+  Sun,
+  Moon,
+  Menu,
+  X,
+  ChevronRight
+} from 'lucide-react';
 
 interface AdminLayoutProps {
   children: ReactNode;
+  title?: string;
 }
 
-function AdminLayoutContent({ children }: AdminLayoutProps) {
+function AdminLayoutContent({ children, title }: AdminLayoutProps) {
   const router = useRouter();
   const { user, logout } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
-  const navigation = [
-    { name: 'Dashboard', href: '/admin/dashboard', icon: 'dashboard' },
-    { name: 'Students', href: '/admin/students', icon: 'graduation_cap' },
-    { name: 'Teachers', href: '/admin/teachers', icon: 'people' },
-    { name: 'Classes', href: '/admin/classes', icon: 'book' },
-    { name: 'Attendance', href: '/admin/attendance', icon: 'calendar_today' },
-    { name: 'Reports', href: '/admin/reports', icon: 'description' },
+  // Initialize dark mode from system preference or localStorage
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedTheme = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+        setIsDarkMode(true);
+        document.documentElement.classList.add('dark');
+      }
+    }
+  }, []);
+
+  const toggleDarkMode = () => {
+    setIsDarkMode(!isDarkMode);
+    if (!isDarkMode) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  };
+
+  const menuItems = [
+    { name: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
+    { name: 'Students', href: '/admin/students', icon: GraduationCap },
+    { name: 'Teachers', href: '/admin/teachers', icon: Users },
+    { name: 'Classes', href: '/admin/classes', icon: BookOpen },
+    { name: 'Attendance', href: '/admin/attendance', icon: CalendarCheck },
+    { name: 'Reports', href: '/admin/reports', icon: FileText },
   ];
 
-  const secondaryNav = [
-    { name: 'Settings', href: '/admin/settings', icon: 'settings' },
+  const secondaryItems = [
+    { name: 'Settings', href: '/admin/settings', icon: Settings },
   ];
+
+  const NavItem = ({ item }: { item: any }) => {
+    const isActive = router.pathname.startsWith(item.href);
+    return (
+      <Link
+        href={item.href}
+        className={`nav-item flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm transition-all duration-200 group ${isActive
+            ? 'nav-item-active'
+            : ''
+          }`}
+      >
+        <item.icon size={20} className={isActive ? 'text-primary' : 'text-muted-foreground group-hover:text-primary'} />
+        <span>{item.name}</span>
+        {isActive && <ChevronRight size={16} className="ml-auto opacity-50" />}
+      </Link>
+    );
+  };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[#F8FAFC] dark:bg-[#0F172A] text-slate-900 dark:text-slate-100 antialiased transition-colors duration-200">
-      {/* Sidebar for Desktop */}
-      <aside className={`w-72 flex-shrink-0 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-r border-slate-200 dark:border-slate-800 flex flex-col transition-all duration-500 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'} fixed lg:relative z-50 h-full`}>
-        <div className="h-24 flex items-center px-8">
+    <div className="flex h-screen overflow-hidden bg-background text-foreground antialiased font-sans transition-colors duration-300">
+      {/* Sidebar Overlay */}
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-muted-foreground/40 backdrop-blur-sm z-40 lg:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside className={`fixed inset-y-0 left-0 w-72 bg-card border-r border-border transform lg:relative lg:translate-x-0 transition-transform duration-300 ease-in-out z-50 flex flex-col ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <div className="h-24 flex items-center px-8 shrink-0">
           <Link href="/admin/dashboard" className="flex items-center gap-3 group">
-            <div className="h-12 w-12 rounded-2xl bg-gradient-to-tr from-primary to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform duration-300">
-              <span className="material-icons-round text-2xl">school</span>
+            <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center text-white shadow-soft shadow-primary/30 group-hover:rotate-6 transition-transform">
+              <GraduationCap size={24} />
             </div>
             <div className="flex flex-col">
-              <span className="text-xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-400">EduCore</span>
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/80">Campus Pro</span>
+              <span className="text-xl font-black tracking-tight text-foreground">EduCore</span>
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">ERP Enterprise</span>
             </div>
           </Link>
         </div>
 
-        <div className="flex-1 overflow-y-auto py-6 px-4 space-y-8 custom-scrollbar">
+        <div className="flex-1 overflow-y-auto px-4 py-4 custom-scrollbar space-y-8">
           <div>
-            <div className="px-4 mb-4 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">Management Console</div>
-            <nav className="space-y-1.5">
-              {navigation.map((item) => {
-                const isActive = router.pathname.startsWith(item.href);
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={`flex items-center px-4 py-3.5 text-sm font-bold rounded-2xl transition-all duration-300 group ${isActive
-                      ? 'bg-primary text-white shadow-xl shadow-primary/25 translate-x-1'
-                      : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-primary dark:hover:text-primary'
-                      }`}
-                  >
-                    <span className={`material-icons-round mr-3 transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110 text-slate-400 dark:text-slate-500 group-hover:text-primary'}`}>{item.icon}</span>
-                    {item.name}
-                  </Link>
-                );
-              })}
+            <p className="px-4 mb-3 text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">Navigation</p>
+            <nav className="space-y-1">
+              {menuItems.map((item) => <NavItem key={item.href} item={item} />)}
             </nav>
           </div>
 
           <div>
-            <div className="px-4 mb-4 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">System Protocols</div>
-            <nav className="space-y-1.5">
-              {secondaryNav.map((item) => {
-                const isActive = router.pathname.startsWith(item.href);
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={`flex items-center px-4 py-3.5 text-sm font-bold rounded-2xl transition-all duration-300 group ${isActive
-                      ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-xl translate-x-1'
-                      : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-primary dark:hover:text-primary'
-                      }`}
-                  >
-                    <span className={`material-icons-round mr-3 transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110 text-slate-400 dark:text-slate-500 group-hover:text-primary'}`}>{item.icon}</span>
-                    {item.name}
-                  </Link>
-                );
-              })}
+            <p className="px-4 mb-3 text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">Management</p>
+            <nav className="space-y-1">
+              {secondaryItems.map((item) => <NavItem key={item.href} item={item} />)}
             </nav>
           </div>
         </div>
 
-        <div className="p-6">
-          <div className="bg-slate-50 dark:bg-slate-800/50 rounded-[2rem] p-4 border border-slate-100 dark:border-slate-700/50">
-            <div className="flex items-center gap-3">
-              <div className="h-12 w-12 rounded-2xl bg-gradient-to-tr from-slate-200 to-slate-100 dark:from-slate-700 dark:to-slate-800 flex items-center justify-center text-slate-900 dark:text-white font-black shadow-inner">
-                {user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-black text-slate-900 dark:text-white truncate">{user?.firstName} {user?.lastName}</p>
-                <div className="flex items-center gap-1.5">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">School Admin</p>
-                </div>
-              </div>
-              <button onClick={logout} className="p-2.5 rounded-xl text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-all active:scale-95">
-                <span className="material-icons-round text-xl">logout</span>
-              </button>
+        <div className="p-4 border-t border-border">
+          <div className="bg-secondary rounded-2xl p-4 flex items-center gap-3 border border-border">
+            <div className="size-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-black">
+              {user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}
             </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-black text-foreground truncate">{user?.firstName} {user?.lastName}</p>
+              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Admin</p>
+            </div>
+            <button onClick={logout} className="p-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg transition-all active:scale-95">
+              <LogOut size={18} />
+            </button>
           </div>
         </div>
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col overflow-hidden relative">
-        <header className="h-24 flex items-center justify-between px-10 bg-white/50 dark:bg-slate-900/50 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 z-10">
-          <div className="flex items-center lg:hidden">
-            <button
-              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="p-3 rounded-2xl bg-white dark:bg-slate-800 shadow-sm text-slate-600 dark:text-slate-400 hover:text-primary transition-all"
-            >
-              <span className="material-icons-round">menu</span>
-            </button>
-          </div>
-
-          <div className="hidden md:flex relative w-96 group">
-            <span className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
-              <span className="material-icons-round text-slate-400 group-focus-within:text-primary transition-colors">search</span>
-            </span>
-            <input
-              className="block w-full pl-12 pr-5 py-3.5 bg-slate-100/50 dark:bg-slate-800/50 border-none rounded-[1.25rem] text-sm font-bold text-slate-900 dark:text-white placeholder-slate-400 focus:ring-2 focus:ring-primary/20 transition-all outline-none"
-              placeholder="Query system protocols..."
-              type="text"
-            />
-          </div>
-
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+        <header className="h-20 flex items-center justify-between px-6 lg:px-10 bg-card/50 backdrop-blur-md border-b border-border shrink-0 z-30">
           <div className="flex items-center gap-4">
-            <button className="h-12 w-12 rounded-2xl flex items-center justify-center text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-primary transition-all active:scale-95">
-              <span className="material-icons-round text-2xl">dark_mode</span>
+            <button
+              onClick={() => setIsSidebarOpen(true)}
+              className="lg:hidden p-2 text-muted-foreground hover:bg-secondary rounded-lg"
+            >
+              <Menu size={24} />
             </button>
-            <button className="relative h-12 w-12 rounded-2xl flex items-center justify-center text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-primary transition-all active:scale-95">
-              <span className="material-icons-round text-2xl">notifications</span>
-              <span className="absolute top-3.5 right-3.5 h-2.5 w-2.5 rounded-full bg-rose-500 border-2 border-white dark:border-slate-900"></span>
+            <h1 className="text-lg font-black text-foreground tracking-tight lg:block hidden">
+              {title || 'Management Console'}
+            </h1>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <div className="hidden md:flex relative group mr-4">
+              <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-muted-foreground group-focus-within:text-primary transition-colors">
+                <Search size={18} />
+              </span>
+              <input
+                type="text"
+                placeholder="Search resources..."
+                className="input-field w-64 pl-10 pr-4 py-2 text-sm font-bold"
+              />
+            </div>
+
+            <button onClick={toggleDarkMode} className="p-2.5 text-muted-foreground hover:bg-secondary rounded-xl transition-all active:scale-95">
+              {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
+            </button>
+            <button className="relative p-2.5 text-muted-foreground hover:bg-secondary rounded-xl transition-all active:scale-95">
+              <Bell size={20} />
+              <span className="absolute top-2.5 right-2.5 size-2 bg-destructive rounded-full border-2 border-background"></span>
             </button>
           </div>
         </header>
 
-        <div className="flex-1 overflow-y-auto p-10 custom-scrollbar scroll-smooth">
-          {children}
-
-          <footer className="mt-20 border-t border-slate-200 dark:border-slate-800 py-10 flex flex-col md:flex-row items-center justify-between gap-4 text-slate-400">
-            <div className="flex items-center gap-2 font-black uppercase text-[10px] tracking-widest">
+        <main className="flex-1 overflow-y-auto px-6 lg:px-10 py-8 custom-scrollbar">
+          <div className="max-w-7xl mx-auto page-transition">
+            {children}
+          </div>
+          <footer className="mt-20 py-8 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4 text-muted-foreground text-[10px] font-black uppercase tracking-widest">
+            <div className="flex items-center gap-2">
               <span className="text-primary italic">EduCore</span>
-              <span>© 2024 Terminal Operations</span>
+              <span>© 2024 Systems Architecture</span>
             </div>
             <div className="flex items-center gap-6">
-              <Link href="#" className="hover:text-primary transition-colors text-[10px] font-bold uppercase tracking-widest">Protocol Version 4.0.2</Link>
-              <Link href="#" className="hover:text-primary transition-colors text-[10px] font-bold uppercase tracking-widest">Security Audit</Link>
+              <span className="hover:text-primary transition-colors cursor-default">Privacy</span>
+              <span className="hover:text-primary transition-colors cursor-default">Terms</span>
+              <span className="hover:text-primary transition-colors cursor-default">Support</span>
             </div>
           </footer>
-        </div>
-      </main>
-
-      {/* Mobile Sidebar Overlay */}
-      {isSidebarOpen && (
-        <div
-          className="lg:hidden fixed inset-0 bg-black/50 z-40"
-          onClick={() => setIsSidebarOpen(false)}
-        />
-      )}
+        </main>
+      </div>
     </div>
   );
 }
 
-/**
- * Admin Layout with built-in authentication and authorization
- * Wraps content with AuthGuard and RoleGuard for SCHOOL_ADMIN role
- */
-export default function AdminLayout({ children }: AdminLayoutProps) {
+export default function AdminLayout(props: AdminLayoutProps) {
   return (
     <AuthGuard>
       <RoleGuard allowedRoles={[USER_ROLES.SCHOOL_ADMIN]}>
-        <AdminLayoutContent>{children}</AdminLayoutContent>
+        <AdminLayoutContent {...props} />
       </RoleGuard>
     </AuthGuard>
   );

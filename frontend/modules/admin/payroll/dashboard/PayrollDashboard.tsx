@@ -1,271 +1,240 @@
-import Head from 'next/head';
-import AuthGuard from '@/components/guards/AuthGuard';
-import RoleGuard from '@/components/guards/RoleGuard';
-import AdminLayout from '@/components/layouts/AdminLayout';
-import { USER_ROLES } from '@/utils/role-config';
+import { useState, useEffect } from 'react';
+import {
+    CreditCard,
+    Plus,
+    Search,
+    Filter,
+    MoreVertical,
+    Activity,
+    DollarSign,
+    TrendingUp,
+    ShieldCheck,
+    ChevronRight,
+    Zap,
+    Users,
+    Clock,
+    ArrowRight,
+    Briefcase,
+    AlertCircle,
+    FileCheck,
+    Wallet
+} from 'lucide-react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import Button from '@/components/ui/Button';
+import Skeleton from '@/components/ui/Skeleton';
+import { Badge } from '@/components/ui/Badge';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger
+} from '@/components/ui/DropdownMenu';
+import { toast } from 'react-hot-toast';
 
-export default function PayrollDashboard() {
-    const payrollData = [
-        {
-            id: 'EMP-1024',
-            name: 'Sarah Jenkins',
-            role: 'Senior Teacher',
-            dept: 'Science Dept',
-            basicPay: 4200.00,
-            additions: 300.00,
-            deductions: 150.00,
-            netSalary: 4350.00,
-            status: 'Pending',
-            statusColor: 'amber'
-        },
-        {
-            id: 'EMP-1045',
-            name: 'Michael Chen',
-            role: 'Admin Officer',
-            dept: 'Finance',
-            basicPay: 3800.00,
-            additions: 0.00,
-            deductions: 200.00,
-            netSalary: 3600.00,
-            status: 'Paid',
-            statusColor: 'green'
-        },
-        {
-            id: 'EMP-1102',
-            name: 'Emily Davis',
-            role: 'Lab Assistant',
-            dept: 'Physics Lab',
-            basicPay: 2500.00,
-            additions: 150.00,
-            deductions: 100.00,
-            netSalary: 2550.00,
-            status: 'Paid',
-            statusColor: 'green'
-        },
-        {
-            id: 'EMP-0988',
-            name: 'James Wilson',
-            role: 'Coach',
-            dept: 'Sports Dept',
-            basicPay: 3100.00,
-            additions: 500.00,
-            deductions: 180.00,
-            netSalary: 3420.00,
-            status: 'Pending',
-            statusColor: 'amber'
-        },
-        {
-            id: 'EMP-1156',
-            name: 'Linda Moore',
-            role: 'Librarian',
-            dept: 'Library',
-            basicPay: 3000.00,
-            additions: 0.00,
-            deductions: 120.00,
-            netSalary: 2880.00,
-            status: 'Paid',
-            statusColor: 'green'
-        }
-    ];
+const payrollSchema = z.object({
+    staffId: z.string().min(1, 'Staff identity required'),
+    amount: z.number().min(0, 'Financial node required'),
+    month: z.string().min(1, 'Temporal node (month) required'),
+    status: z.enum(['PAID', 'PENDING', 'HOLD']).default('PENDING'),
+});
+
+type PayrollFormValues = z.infer<typeof payrollSchema>;
+
+export default function PayrollManagement() {
+    const [payrolls, setPayrolls] = useState<any[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [activeTab, setActiveTab] = useState<'matrix' | 'disburse'>('matrix');
+    const [registering, setRegistering] = useState(false);
+
+    // Mocking data for visualization until specific payroll service is finalized
+    useEffect(() => {
+        setLoading(true);
+        setTimeout(() => {
+            setPayrolls([
+                { id: '1', staffName: 'Dr. Sarah Jenkins', amount: 5200, month: 'January 2024', status: 'PAID', node: 'FACULTY_A' },
+                { id: '2', staffName: 'Prof. James Wilson', amount: 4800, month: 'January 2024', status: 'PAID', node: 'FACULTY_B' },
+                { id: '3', staffName: 'Admin Mark Cooper', amount: 3200, month: 'January 2024', status: 'PENDING', node: 'ADMIN_BASE' },
+            ]);
+            setLoading(false);
+        }, 1000);
+    }, []);
+
+    const onDisburse = async (data: PayrollFormValues) => {
+        setRegistering(true);
+        // Simulation of financial protocol
+        setTimeout(() => {
+            toast.success('Financial Protocol: Salary node successfully disbursed.');
+            setRegistering(false);
+            setActiveTab('matrix');
+        }, 1500);
+    };
 
     return (
-        <AuthGuard>
-            <RoleGuard allowedRoles={[USER_ROLES.SUPER_ADMIN, USER_ROLES.SCHOOL_ADMIN]}>
-                <AdminLayout>
-                    <Head>
-                        <title>Payroll Management - School ERP</title>
-                    </Head>
+        <div className="space-y-8 animate-in fade-in duration-500 pb-12">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                <div>
+                    <h1 className="text-3xl font-black text-slate-900 dark:text-white uppercase tracking-tight mb-2">Institutional Finance: Payroll</h1>
+                    <p className="text-sm font-medium text-slate-500 italic">Manage faculty compensation, salary disbursal nodes, and financial transparency metrics.</p>
+                </div>
+                <div className="flex items-center gap-3">
+                    <Button
+                        onClick={() => setActiveTab('disburse')}
+                        className="bg-primary hover:bg-primary/90 text-white rounded-2xl px-6 py-6 h-auto font-black text-xs uppercase tracking-widest gap-2 shadow-xl shadow-primary/20"
+                    >
+                        <Plus size={18} />
+                        Initialize Disbursal
+                    </Button>
+                </div>
+            </div>
 
-                    <div className="flex flex-col gap-6">
-                        {/* Header */}
-                        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-                            <div className="flex flex-col gap-1">
-                                <h2 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Payroll Management</h2>
-                                <p className="text-slate-500 dark:text-slate-400">Manage salaries, deductions, and process monthly payments.</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {[
+                    { label: 'Monthly Payload', value: '$124,500', icon: <Wallet className="text-primary" /> },
+                    { label: 'Active Faculty', value: '142 Nodes', icon: <Users className="text-indigo-500" /> },
+                    { label: 'Disbursal Ratio', value: '98.2%', icon: <ShieldCheck className="text-emerald-500" /> },
+                    { label: 'Protocol Status', value: 'CERTIFIED', icon: <Zap className="text-amber-500" /> },
+                ].map((stat, i) => (
+                    <div key={i} className="bg-white dark:bg-slate-900 p-8 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden relative group hover:border-primary/50 transition-all">
+                        <div className="relative z-10 flex flex-col gap-6">
+                            <div className="size-12 rounded-2xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover:text-primary transition-colors">
+                                {stat.icon}
                             </div>
-                            <div className="flex items-center gap-3 flex-wrap">
-                                <div className="relative group">
-                                    <div className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-[#1e2936] border border-slate-200 dark:border-slate-700 rounded-lg cursor-pointer hover:border-primary transition-colors shadow-sm">
-                                        <span className="material-symbols-outlined text-slate-500 text-[20px]">calendar_month</span>
-                                        <span className="font-medium text-sm text-slate-700 dark:text-slate-200">October 2023</span>
-                                        <span className="material-symbols-outlined text-slate-400 text-[18px]">expand_more</span>
-                                    </div>
-                                </div>
-                                <button className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-[#1e2936] border border-slate-200 dark:border-slate-700 rounded-lg text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-sm font-medium text-sm">
-                                    <span className="material-symbols-outlined text-[20px]">download</span>
-                                    Export Report
-                                </button>
-                                <button className="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-blue-600 text-white rounded-lg shadow-md transition-all font-medium text-sm">
-                                    <span className="material-symbols-outlined text-[20px]">play_arrow</span>
-                                    Run Payroll
-                                </button>
+                            <div>
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">{stat.label}</p>
+                                <h3 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tighter">{stat.value}</h3>
                             </div>
                         </div>
+                    </div>
+                ))}
+            </div>
 
-                        {/* Stats Cards */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                            <div className="bg-white dark:bg-[#1e2936] p-5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col gap-1">
-                                <div className="flex justify-between items-start">
-                                    <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Total Payroll Cost</p>
-                                    <div className="p-1.5 bg-green-100 dark:bg-green-900/30 rounded-md text-green-600 dark:text-green-400">
-                                        <span className="material-symbols-outlined text-[20px]">attach_money</span>
-                                    </div>
-                                </div>
-                                <div className="mt-2">
-                                    <h3 className="text-2xl font-bold text-slate-900 dark:text-white">$142,500</h3>
-                                    <div className="flex items-center gap-1 mt-1 text-xs font-medium text-green-600 dark:text-green-400">
-                                        <span className="material-symbols-outlined text-[16px]">trending_up</span>
-                                        <span>+2.5% from last month</span>
-                                    </div>
-                                </div>
+            <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden">
+                <div className="p-10">
+                    {activeTab === 'disburse' ? (
+                        <div className="space-y-10">
+                            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-8">
+                                <h2 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Salary Disbursement Protocol</h2>
+                                <button onClick={() => setActiveTab('matrix')} className="text-[10px] font-black text-primary uppercase tracking-widest hover:underline">Return to Matrix</button>
                             </div>
-                            <div className="bg-white dark:bg-[#1e2936] p-5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col gap-1">
-                                <div className="flex justify-between items-start">
-                                    <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Net Salary Payout</p>
-                                    <div className="p-1.5 bg-blue-100 dark:bg-blue-900/30 rounded-md text-blue-600 dark:text-blue-400">
-                                        <span className="material-symbols-outlined text-[20px]">account_balance_wallet</span>
+                            <form onSubmit={() => onDisburse({} as any)} className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                                <div className="space-y-8">
+                                    <div className="space-y-3">
+                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Faculty Identity Node (ID)</label>
+                                        <input
+                                            placeholder="STAFF-NODE-2024-X..."
+                                            className="w-full bg-slate-50 dark:bg-slate-800/50 border-none rounded-2xl py-5 px-8 text-sm font-bold text-slate-900 dark:text-white outline-none focus:ring-4 focus:ring-primary/10 transition-all"
+                                        />
+                                    </div>
+                                    <div className="space-y-3">
+                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Temporal Node (Month/Year)</label>
+                                        <select
+                                            className="w-full bg-slate-50 dark:bg-slate-800/50 border-none rounded-2xl py-5 px-8 text-xs font-black uppercase tracking-widest text-slate-900 dark:text-white outline-none focus:ring-4 focus:ring-primary/10 transition-all appearance-none"
+                                        >
+                                            <option value="JAN_2024">Cycle: January 2024</option>
+                                            <option value="FEB_2024">Cycle: February 2024</option>
+                                        </select>
                                     </div>
                                 </div>
-                                <div className="mt-2">
-                                    <h3 className="text-2xl font-bold text-slate-900 dark:text-white">$120,000</h3>
-                                    <div className="flex items-center gap-1 mt-1 text-xs font-medium text-green-600 dark:text-green-400">
-                                        <span className="material-symbols-outlined text-[16px]">trending_up</span>
-                                        <span>+1.2% increase</span>
+                                <div className="space-y-8">
+                                    <div className="space-y-3">
+                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Financial Payload (Salary Amount)</label>
+                                        <input
+                                            type="number"
+                                            placeholder="5200.00"
+                                            className="w-full bg-slate-50 dark:bg-slate-800/50 border-none rounded-2xl py-5 px-8 text-sm font-bold text-slate-900 dark:text-white outline-none focus:ring-4 focus:ring-primary/10 transition-all"
+                                        />
                                     </div>
                                 </div>
-                            </div>
-                            <div className="bg-white dark:bg-[#1e2936] p-5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col gap-1">
-                                <div className="flex justify-between items-start">
-                                    <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Pending Payments</p>
-                                    <div className="p-1.5 bg-amber-100 dark:bg-amber-900/30 rounded-md text-amber-600 dark:text-amber-400">
-                                        <span className="material-symbols-outlined text-[20px]">pending_actions</span>
-                                    </div>
+                                <div className="md:col-span-2 flex justify-end">
+                                    <Button
+                                        type="submit"
+                                        disabled={registering}
+                                        className="bg-primary hover:bg-primary/90 text-white rounded-[2rem] px-12 py-6 h-auto font-black text-xs uppercase tracking-widest gap-2 shadow-xl shadow-primary/20 transition-all active:scale-95"
+                                    >
+                                        {registering ? <Activity size={18} className="animate-spin" /> : <CreditCard size={18} />}
+                                        Disburse Financial Token
+                                    </Button>
                                 </div>
-                                <div className="mt-2">
-                                    <h3 className="text-2xl font-bold text-slate-900 dark:text-white">4 Staff</h3>
-                                    <div className="flex items-center gap-1 mt-1 text-xs font-medium text-amber-600 dark:text-amber-400">
-                                        <span>Action required</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="bg-white dark:bg-[#1e2936] p-5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col gap-1">
-                                <div className="flex justify-between items-start">
-                                    <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Processed</p>
-                                    <div className="p-1.5 bg-purple-100 dark:bg-purple-900/30 rounded-md text-purple-600 dark:text-purple-400">
-                                        <span className="material-symbols-outlined text-[20px]">donut_large</span>
-                                    </div>
-                                </div>
-                                <div className="mt-2">
-                                    <h3 className="text-2xl font-bold text-slate-900 dark:text-white">124/128</h3>
-                                    <div className="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-1.5 mt-2 overflow-hidden">
-                                        <div className="bg-purple-500 h-1.5 rounded-full" style={{ width: '96%' }}></div>
-                                    </div>
-                                </div>
-                            </div>
+                            </form>
                         </div>
-
-                        {/* Main Data Table Section */}
-                        <div className="flex flex-col bg-white dark:bg-[#1e2936] rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm min-h-[400px]">
-                            {/* Table Toolbar */}
-                            <div className="p-4 border-b border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row gap-4 justify-between items-center">
-                                <div className="flex items-center gap-3 w-full sm:w-auto">
-                                    <div className="relative w-full sm:w-64">
-                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 material-symbols-outlined text-[20px]">search</span>
-                                        <input className="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/50 outline-none" placeholder="Search by name or ID..." type="text" />
-                                    </div>
-                                    <button className="p-2 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-500">
-                                        <span className="material-symbols-outlined text-[20px]">filter_list</span>
-                                    </button>
+                    ) : (
+                        <div className="space-y-8">
+                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                                <div className="relative group max-w-md w-full">
+                                    <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-primary transition-colors" size={20} />
+                                    <input
+                                        type="text"
+                                        placeholder="Sync Faculty Identifier..."
+                                        className="w-full bg-slate-50 dark:bg-slate-800/50 border-none rounded-2xl py-4 pl-14 pr-6 text-sm font-bold text-slate-900 dark:text-white outline-none ring-1 ring-slate-100 dark:ring-slate-800 focus:ring-2 focus:ring-primary transition-all"
+                                    />
                                 </div>
-                                <div className="flex gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
-                                    <select className="px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-600 dark:text-slate-300 outline-none focus:border-primary cursor-pointer">
-                                        <option>All Departments</option>
-                                        <option>Teaching Staff</option>
-                                        <option>Administration</option>
-                                        <option>Support Staff</option>
-                                    </select>
-                                    <select className="px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-600 dark:text-slate-300 outline-none focus:border-primary cursor-pointer">
-                                        <option>All Status</option>
-                                        <option>Paid</option>
-                                        <option>Pending</option>
-                                        <option>Processing</option>
-                                    </select>
-                                </div>
+                                <Button variant="secondary" className="rounded-xl px-6 py-4 h-auto font-black text-[10px] uppercase tracking-widest gap-2 border-2 text-slate-400">
+                                    <Filter size={14} />
+                                    Status synchronization
+                                </Button>
                             </div>
 
-                            {/* Table */}
-                            <div className="overflow-x-auto flex-1">
-                                <table className="w-full text-left border-collapse">
+                            <div className="rounded-[2.5rem] border-2 border-slate-50 dark:border-slate-800 overflow-hidden shadow-xl">
+                                <table className="w-full border-collapse">
                                     <thead>
-                                        <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700 text-xs uppercase tracking-wider text-slate-500 font-semibold">
-                                            <th className="px-6 py-4">Employee</th>
-                                            <th className="px-6 py-4">Role / Dept</th>
-                                            <th className="px-6 py-4 text-right">Basic Pay</th>
-                                            <th className="px-6 py-4 text-right">Additions</th>
-                                            <th className="px-6 py-4 text-right">Deductions</th>
-                                            <th className="px-6 py-4 text-right">Net Salary</th>
-                                            <th className="px-6 py-4 text-center">Status</th>
-                                            <th className="px-6 py-4 text-center">Actions</th>
+                                        <tr className="bg-slate-50 dark:bg-slate-800/50 border-b-2 border-slate-100 dark:border-slate-800">
+                                            <th className="px-10 py-6 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Faculty Node</th>
+                                            <th className="px-10 py-6 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Temporal Cycle</th>
+                                            <th className="px-10 py-6 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Financial Payload</th>
+                                            <th className="px-10 py-6 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Status Code</th>
+                                            <th className="px-10 py-6"></th>
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-sm">
-                                        {payrollData.map((row) => (
-                                            <tr key={row.id} className="group hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                                                <td className="px-6 py-4">
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="size-9 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-500 font-bold text-xs uppercase">
-                                                            {row.name.split(' ').map(n => n[0]).join('')}
+                                    <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
+                                        {loading ? (
+                                            Array.from({ length: 5 }).map((_, i) => (
+                                                <tr key={i}>
+                                                    <td className="px-10 py-6"><Skeleton className="h-6 w-32" /></td>
+                                                    <td className="px-10 py-6"><Skeleton className="h-6 w-40" /></td>
+                                                    <td className="px-10 py-6"><Skeleton className="h-6 w-20" /></td>
+                                                    <td className="px-10 py-6"><Skeleton className="h-6 w-24" /></td>
+                                                    <td className="px-10 py-6"><Skeleton className="size-8 ml-auto" /></td>
+                                                </tr>
+                                            ))
+                                        ) : (
+                                            payrolls.map((pay) => (
+                                                <tr key={pay.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors group">
+                                                    <td className="px-10 py-6">
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="size-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 font-black text-[10px]">
+                                                                {pay.staffName.substring(0, 2)}
+                                                            </div>
+                                                            <div className="text-left">
+                                                                <p className="text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-tight">{pay.staffName}</p>
+                                                                <Badge variant="outline" className="text-[7px] font-black uppercase tracking-widest border-none p-0 h-auto">NODE: {pay.node}</Badge>
+                                                            </div>
                                                         </div>
-                                                        <div className="flex flex-col">
-                                                            <span className="font-medium text-slate-900 dark:text-white">{row.name}</span>
-                                                            <span className="text-xs text-slate-500">ID: {row.id}</span>
+                                                    </td>
+                                                    <td className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest italic">{pay.month}</td>
+                                                    <td className="px-10 py-6 text-[11px] font-black text-slate-900 dark:text-white uppercase tracking-tighter">${pay.amount.toLocaleString()}</td>
+                                                    <td className="px-10 py-6">
+                                                        <div className="flex items-center gap-2">
+                                                            <div className={`size-2 rounded-full ${pay.status === 'PAID' ? 'bg-emerald-500' : 'bg-amber-500 animate-pulse'}`}></div>
+                                                            <span className={`text-[9px] font-black uppercase tracking-widest ${pay.status === 'PAID' ? 'text-emerald-500' : 'text-amber-500'}`}>{pay.status}</span>
                                                         </div>
-                                                    </div>
-                                                </td>
-                                                <td className="px-6 py-4">
-                                                    <div className="flex flex-col">
-                                                        <span className="text-slate-900 dark:text-slate-200">{row.role}</span>
-                                                        <span className="text-xs text-slate-500">{row.dept}</span>
-                                                    </div>
-                                                </td>
-                                                <td className="px-6 py-4 text-right font-medium text-slate-600 dark:text-slate-400">${row.basicPay.toFixed(2)}</td>
-                                                <td className="px-6 py-4 text-right text-green-600 dark:text-green-400">+${row.additions.toFixed(2)}</td>
-                                                <td className="px-6 py-4 text-right text-red-500 dark:text-red-400">-${row.deductions.toFixed(2)}</td>
-                                                <td className="px-6 py-4 text-right font-bold text-slate-900 dark:text-white">${row.netSalary.toFixed(2)}</td>
-                                                <td className="px-6 py-4 text-center">
-                                                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${row.statusColor === 'green' ? 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-400 border-green-200 dark:border-green-800' : 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-400 border-amber-200 dark:border-amber-800'}`}>
-                                                        {row.status}
-                                                    </span>
-                                                </td>
-                                                <td className="px-6 py-4">
-                                                    <div className="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                        <button className="p-1.5 text-slate-500 hover:text-primary hover:bg-primary/10 rounded-md transition-colors" title="Edit">
-                                                            <span className="material-symbols-outlined text-[18px]">edit</span>
+                                                    </td>
+                                                    <td className="px-10 py-6 text-right">
+                                                        <button className="size-10 rounded-xl hover:bg-white dark:hover:bg-slate-800 flex items-center justify-center text-slate-400 transition-shadow border border-transparent group-hover:border-slate-100 dark:group-hover:border-slate-800">
+                                                            <MoreVertical size={20} />
                                                         </button>
-                                                        <button className="p-1.5 text-slate-500 hover:text-primary hover:bg-primary/10 rounded-md transition-colors" title="View Slip">
-                                                            <span className="material-symbols-outlined text-[18px]">receipt_long</span>
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        ))}
+                                                    </td>
+                                                </tr>
+                                            ))
+                                        )}
                                     </tbody>
                                 </table>
                             </div>
-
-                            {/* Table Pagination */}
-                            <div className="p-4 border-t border-slate-200 dark:border-slate-700 flex items-center justify-between mt-auto">
-                                <span className="text-sm text-slate-500 dark:text-slate-400">Showing 1 to 5 of 124 entries</span>
-                                <div className="flex gap-2">
-                                    <button className="px-3 py-1 border border-slate-200 dark:border-slate-700 rounded-lg text-sm disabled:opacity-50 hover:bg-slate-50 dark:hover:bg-slate-800" disabled>Previous</button>
-                                    <button className="px-3 py-1 border border-slate-200 dark:border-slate-700 rounded-lg text-sm hover:bg-slate-50 dark:hover:bg-slate-800">Next</button>
-                                </div>
-                            </div>
                         </div>
-
-                    </div>
-                </AdminLayout>
-            </RoleGuard>
-        </AuthGuard>
+                    )}
+                </div>
+            </div>
+        </div>
     );
 }

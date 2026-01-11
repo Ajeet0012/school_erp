@@ -25,6 +25,16 @@ class StatsService {
         const response = await apiClient.get<DashboardStats>('/stats/dashboard');
         return response.data!;
     }
+
+    async getTeacherStats(): Promise<any> {
+        const response = await apiClient.get('/stats/teacher');
+        return response.data!;
+    }
+
+    async getStudentStats(): Promise<any> {
+        const response = await apiClient.get('/stats/student');
+        return response.data!;
+    }
 }
 
 export const statsService = new StatsService();

@@ -1,6 +1,3 @@
-/**
- * Class Sections Page
- * Thin routing file - exports from module
- */
+import { default as ClassSectionsModule } from '@/modules/admin/academic/classes/ClassSections';
 
-export { default } from '@/modules/admin/classes/sections/ClassSections';
+export default ClassSectionsModule;

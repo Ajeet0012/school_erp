@@ -5,6 +5,7 @@ module.exports = {
     './pages/**/*.{js,ts,jsx,tsx,mdx}',
     './components/**/*.{js,ts,jsx,tsx,mdx}',
     './auth/**/*.{js,ts,jsx,tsx,mdx}',
+    './modules/**/*.{js,ts,jsx,tsx,mdx}',
     './super-admin/**/*.{js,ts,jsx,tsx,mdx}',
     './admin/**/*.{js,ts,jsx,tsx,mdx}',
     './teacher/**/*.{js,ts,jsx,tsx,mdx}',
@@ -14,7 +15,14 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        brand: {
+        border: "hsl(var(--border))",
+        input: "hsl(var(--input))",
+        ring: "hsl(var(--ring))",
+        background: "hsl(var(--background))",
+        foreground: "hsl(var(--foreground))",
+        primary: {
+          DEFAULT: "hsl(var(--primary))",
+          foreground: "hsl(var(--primary-foreground))",
           50: '#eff6ff',
           100: '#dbeafe',
           200: '#bfdbfe',
@@ -27,6 +35,31 @@ module.exports = {
           900: '#1e3a8a',
           950: '#172554',
         },
+        secondary: {
+          DEFAULT: "hsl(var(--secondary))",
+          foreground: "hsl(var(--secondary-foreground))",
+        },
+        destructive: {
+          DEFAULT: "hsl(var(--destructive))",
+          foreground: "hsl(var(--destructive-foreground))",
+        },
+        muted: {
+          DEFAULT: "hsl(var(--muted))",
+          foreground: "hsl(var(--muted-foreground))",
+        },
+        accent: {
+          DEFAULT: "hsl(var(--accent))",
+          foreground: "hsl(var(--accent-foreground))",
+        },
+        popover: {
+          DEFAULT: "hsl(var(--popover))",
+          foreground: "hsl(var(--popover-foreground))",
+        },
+        card: {
+          DEFAULT: "hsl(var(--card))",
+          foreground: "hsl(var(--card-foreground))",
+        },
+        // Professional Gray Palette
         slate: {
           50: '#f8fafc',
           100: '#f1f5f9',
@@ -40,44 +73,18 @@ module.exports = {
           900: '#0f172a',
           950: '#020617',
         },
-        primary: "#4F46E5",
-        "primary-hover": "#4338CA",
-        "background-light": "#F3F4F6",
-        "background-dark": "#111827",
-        "card-light": "#FFFFFF",
-        "card-dark": "#1F2937",
-        "text-light": "#111827",
-        "text-dark": "#F9FAFB",
-        "muted-light": "#6B7280",
-        "muted-dark": "#9CA3AF",
-        "surface-dark": "#1a2632",
-        // Premium Indigo shades from Stitch HTML designs
-        indigo: {
-          50: '#eef2ff',
-          100: '#e0e7ff',
-          200: '#c7d2fe',
-          300: '#a5b4fc',
-          400: '#818cf8',
-          500: '#6366f1',
-          600: '#4f46e5',
-          700: '#4338ca',
-          800: '#3730a3',
-          900: '#312e81',
-          950: '#1e1b4b',
-        },
-        // Premium Gray shades from Stitch HTML designs
-        gray: {
-          50: '#f9fafb',
-          100: '#f3f4f6',
-          200: '#e5e7eb',
-          300: '#d1d5db',
-          400: '#9ca3af',
-          500: '#6b7280',
-          600: '#4b5563',
-          700: '#374151',
-          800: '#1f2937',
-          900: '#111827',
-          950: '#030712',
+        // Light Blue Accents
+        blue: {
+          50: '#eff6ff',
+          100: '#dbeafe',
+          200: '#bfdbfe',
+          300: '#93c5fd',
+          400: '#60a5fa',
+          500: '#3b82f6',
+          600: '#2563eb',
+          700: '#1d4ed8',
+          800: '#1e40af',
+          900: '#1e3a8a',
         },
       },
       fontFamily: {
@@ -86,10 +93,15 @@ module.exports = {
         body: ['Noto Sans', 'sans-serif'],
       },
       borderRadius: {
-        DEFAULT: "0.25rem",
-        lg: "0.5rem",
-        xl: "0.75rem",
+        DEFAULT: "0.75rem",
+        lg: "1rem",
+        xl: "1.25rem",
         full: "9999px"
+      },
+      boxShadow: {
+        'soft': '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
+        'soft-lg': '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+        'soft-xl': '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
       }
     },
   },

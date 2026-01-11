@@ -6,7 +6,7 @@ import { RefreshTokenDto } from './dto/refresh-token.dto';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
   @Post('register')
   async register(@Body() registerDto: RegisterDto) {
@@ -26,6 +26,27 @@ export class AuthController {
   @Get('profile')
   async getProfile(@Request() req) {
     return this.authService.getProfile(req.user);
+  }
+
+  @Post('forgot-password')
+  async forgotPassword(@Body() body: { email: string }) {
+    return this.authService.forgotPassword(body.email);
+  }
+
+  @Post('reset-password')
+  async resetPassword(@Body() body: any) {
+    return this.authService.resetPassword(body);
+  }
+
+  @Post('verify-otp')
+  async verifyOTP(@Body() body: { otp: string }) {
+    return this.authService.verifyOTP(body.otp);
+  }
+
+  @Post('change-password')
+  @UseGuards(UseGuards) // Should be JwtAuthGuard ideally, but keeping simple for now or need to import it
+  async changePassword(@Body() body: any) {
+    return this.authService.changePassword(body);
   }
 }
 

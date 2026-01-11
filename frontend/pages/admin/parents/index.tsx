@@ -1,6 +1,10 @@
-/**
- * Parents Page
- * Thin routing file - exports from module
- */
+import AdminLayout from '@/components/layouts/AdminLayout';
+import ParentsList from '@/modules/admin/parents/list/ParentsList';
 
-export { default } from '@/modules/admin/parents/list/Parents';
+export default function ParentsListPage() {
+    return (
+        <AdminLayout>
+            <ParentsList />
+        </AdminLayout>
+    );
+}

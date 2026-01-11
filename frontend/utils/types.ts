@@ -21,6 +21,9 @@ export interface User {
   schoolId?: string;
   phone?: string;
   avatar?: string;
+  isActive?: boolean;
+  lastLoginAt?: string;
+  profilePicture?: string;
 }
 
 // API Response wrapper
@@ -37,6 +40,8 @@ export interface PaginationParams {
   limit?: number;
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
+  sectionId?: string;
+  classId?: string;
 }
 
 // Paginated response
@@ -76,6 +81,7 @@ export interface Student {
   gender?: 'MALE' | 'FEMALE' | 'OTHER';
   address?: string;
   classId?: string;
+  class?: Class;
   sectionId?: string;
   parentId?: string;
   schoolId?: string;
@@ -98,7 +104,7 @@ export interface CreateStudentDto {
   parentId?: string;
 }
 
-export interface UpdateStudentDto extends Partial<CreateStudentDto> {}
+export interface UpdateStudentDto extends Partial<CreateStudentDto> { }
 
 // Teacher
 export interface Teacher {
@@ -108,12 +114,17 @@ export interface Teacher {
   email: string;
   phone?: string;
   employeeId: string;
+  department?: string;
+  designation?: string;
   qualification?: string;
   specialization?: string;
   dateOfJoining?: string;
   schoolId?: string;
   subjects?: Subject[];
   status?: 'ACTIVE' | 'INACTIVE' | 'ON_LEAVE';
+  profilePicture?: string;
+  address?: string;
+  gender?: 'MALE' | 'FEMALE' | 'OTHER';
   createdAt?: string;
   updatedAt?: string;
 }
@@ -124,13 +135,17 @@ export interface CreateTeacherDto {
   email: string;
   phone?: string;
   employeeId: string;
+  department?: string;
+  designation?: string;
   qualification?: string;
   specialization?: string;
   dateOfJoining?: string;
   subjectIds?: string[];
+  address?: string;
+  gender?: 'MALE' | 'FEMALE' | 'OTHER';
 }
 
-export interface UpdateTeacherDto extends Partial<CreateTeacherDto> {}
+export interface UpdateTeacherDto extends Partial<CreateTeacherDto> { }
 
 // Class
 export interface Class {
@@ -152,7 +167,7 @@ export interface CreateClassDto {
   teacherId?: string;
 }
 
-export interface UpdateClassDto extends Partial<CreateClassDto> {}
+export interface UpdateClassDto extends Partial<CreateClassDto> { }
 
 // Section
 export interface Section {
@@ -182,7 +197,7 @@ export interface CreateSubjectDto {
   description?: string;
 }
 
-export interface UpdateSubjectDto extends Partial<CreateSubjectDto> {}
+export interface UpdateSubjectDto extends Partial<CreateSubjectDto> { }
 
 // Parent
 export interface Parent {

@@ -1,49 +1,59 @@
 /**
- * Settings service
+ * General Settings & Configuration service
+ * Handles institutional parameters, branding, and academic year configuration
  */
 
 import { apiClient } from '@/utils/api-client';
 import { API_ENDPOINTS } from '@/utils/constants';
 
 class SettingsService {
-  async getSchoolProfile() {
-    const response = await apiClient.get(`${API_ENDPOINTS.SETTINGS}/school-profile`);
-    return response.data;
+  /**
+   * Get institutional profile/settings
+   */
+  async getSettings(): Promise<any> {
+    const response = await apiClient.get(API_ENDPOINTS.SETTINGS);
+    return (response as any).data || response;
   }
 
-  async updateSchoolProfile(data: any) {
-    const response = await apiClient.patch(`${API_ENDPOINTS.SETTINGS}/school-profile`, data);
-    return response.data;
+  /**
+   * Update institutional settings
+   */
+  async updateSettings(data: any): Promise<any> {
+    const response = await apiClient.put(API_ENDPOINTS.SETTINGS, data);
+    return (response as any).data || response;
   }
 
-  async getAcademicYear() {
-    const response = await apiClient.get(`${API_ENDPOINTS.SETTINGS}/academic-year`);
-    return response.data;
+  /**
+   * Get academic years
+   */
+  async getAcademicYears(): Promise<any[]> {
+    const response = await apiClient.get(`${API_ENDPOINTS.SETTINGS}/academic-years`);
+    return (response as any).data || response;
   }
 
-  async updateAcademicYear(data: any) {
-    const response = await apiClient.patch(`${API_ENDPOINTS.SETTINGS}/academic-year`, data);
-    return response.data;
+  /**
+   * Create academic year
+   */
+  async createAcademicYear(data: any): Promise<any> {
+    const response = await apiClient.post(`${API_ENDPOINTS.SETTINGS}/academic-years`, data);
+    return (response as any).data || response;
   }
 
-  async getRolesPermissions() {
-    const response = await apiClient.get(`${API_ENDPOINTS.SETTINGS}/roles-permissions`);
-    return response.data;
+  /**
+   * Set active academic year
+   */
+  async setActiveYear(id: string): Promise<void> {
+    await apiClient.post(`${API_ENDPOINTS.SETTINGS}/academic-years/${id}/activate`);
   }
 
-  async updateRolesPermissions(data: any) {
-    const response = await apiClient.patch(`${API_ENDPOINTS.SETTINGS}/roles-permissions`, data);
-    return response.data;
-  }
-
-  async getBranding() {
-    const response = await apiClient.get(`${API_ENDPOINTS.SETTINGS}/branding`);
-    return response.data;
-  }
-
-  async updateBranding(data: any) {
-    const response = await apiClient.patch(`${API_ENDPOINTS.SETTINGS}/branding`, data);
-    return response.data;
+  /**
+   * Upload institutional branding (Logo)
+   */
+  async uploadBranding(formData: FormData): Promise<any> {
+    const response = await apiClient.post(`${API_ENDPOINTS.SETTINGS}/branding`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+    return (response as any).data || response;
   }
 }
 

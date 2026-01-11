@@ -38,16 +38,16 @@ function StudentLayoutContent({ children }: StudentLayoutProps) {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-sm border-b">
+    <div className="min-h-screen bg-background">
+      <header className="bg-card shadow-soft border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <h1 className="text-xl font-semibold text-gray-900">School ERP - Student</h1>
+            <h1 className="text-xl font-semibold text-foreground">School ERP - Student</h1>
             <div className="flex items-center gap-4">
-              <span className="text-sm text-gray-600">{user?.firstName} {user?.lastName}</span>
+              <span className="text-sm text-muted-foreground">{user?.firstName} {user?.lastName}</span>
               <button
                 onClick={logout}
-                className="px-4 py-2 text-sm text-white bg-red-600 rounded-md hover:bg-red-700"
+                className="btn-primary px-4 py-2 text-sm"
               >
                 Logout
               </button>
@@ -57,7 +57,7 @@ function StudentLayoutContent({ children }: StudentLayoutProps) {
       </header>
 
       <div className="flex">
-        <aside className="w-64 bg-white shadow-sm min-h-[calc(100vh-4rem)]">
+        <aside className="w-64 bg-card shadow-soft min-h-[calc(100vh-4rem)] border-r border-border">
           <nav className="p-4">
             <ul className="space-y-2">
               {navItems.map((item) => {
@@ -66,9 +66,9 @@ function StudentLayoutContent({ children }: StudentLayoutProps) {
                   <li key={item.href}>
                     <Link
                       href={item.href}
-                      className={`block px-4 py-2 rounded-md text-sm ${isActive
-                          ? 'bg-primary-100 text-primary-700 font-medium'
-                          : 'text-gray-700 hover:bg-gray-100'
+                      className={`nav-item block px-4 py-2 rounded-md text-sm ${isActive
+                          ? 'nav-item-active'
+                          : ''
                         }`}
                     >
                       {item.label}

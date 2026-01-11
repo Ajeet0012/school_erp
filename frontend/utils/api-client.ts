@@ -23,7 +23,10 @@ class ApiClient {
     this.client.interceptors.request.use(
       (config: InternalAxiosRequestConfig) => {
         if (typeof window !== 'undefined') {
-          const token = localStorage.getItem('access_token');
+          const localToken = localStorage.getItem('access_token');
+          const sessionToken = sessionStorage.getItem('access_token');
+          const token = localToken || sessionToken;
+
           if (token && config.headers) {
             config.headers.Authorization = `Bearer ${token}`;
           }
@@ -47,6 +50,8 @@ class ApiClient {
             if (currentPath !== '/auth/login' && currentPath !== '/auth/register') {
               localStorage.removeItem('access_token');
               localStorage.removeItem('user');
+              sessionStorage.removeItem('access_token');
+              sessionStorage.removeItem('user');
               window.location.href = '/auth/login';
             }
           }

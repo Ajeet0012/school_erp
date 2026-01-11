@@ -6,12 +6,165 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  :root {
+    /* Professional White + Blue Theme */
+    --background: 0 0% 100%;
+    --foreground: 210 40% 12%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 210 40% 12%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 210 40% 12%;
+
+    --primary: 217 91% 60%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 210 40% 98%;
+    --secondary-foreground: 210 40% 12%;
+
+    --muted: 210 40% 96%;
+    --muted-foreground: 210 20% 46%;
+
+    --accent: 217 91% 95%;
+    --accent-foreground: 210 40% 12%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 210 20% 88%;
+    --input: 210 20% 88%;
+    --ring: 217 91% 60%;
+
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 224.3 76.3% 48%;
+  }
+
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer components {
+  /* Professional Card Styles */
+  .card {
+    @apply bg-card border border-border rounded-xl shadow-sm;
+  }
+  
+  .card-hover {
+    @apply transition-all duration-200 hover:shadow-md hover:border-primary/20;
+  }
+
+  /* Professional Button Styles */
+  .btn-primary {
+    @apply bg-primary text-primary-foreground px-6 py-3 rounded-lg font-medium hover:bg-primary/90 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/20;
+  }
+  
+  .btn-secondary {
+    @apply bg-secondary text-secondary-foreground px-6 py-3 rounded-lg font-medium border border-border hover:bg-accent transition-colors focus:outline-none focus:ring-2 focus:ring-primary/20;
+  }
+  
+  .btn-outline {
+    @apply bg-transparent text-primary px-6 py-3 rounded-lg font-medium border border-primary hover:bg-primary/10 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/20;
+  }
+
+  /* Professional Input Styles */
+  .input-field {
+    @apply bg-background border border-input rounded-lg px-4 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors;
+  }
+
+  /* Professional Table Styles */
+  .table-container {
+    @apply bg-card border border-border rounded-xl overflow-hidden;
+  }
+  
+  .table-header {
+    @apply bg-muted border-b border-border;
+  }
+  
+  .table-row {
+    @apply border-b border-border hover:bg-muted/50 transition-colors;
+  }
+
+  /* Professional Navigation Styles */
+  .nav-item {
+    @apply text-muted-foreground hover:text-foreground hover:bg-muted px-3 py-2 rounded-lg transition-colors;
+  }
+  
+  .nav-item-active {
+    @apply text-primary bg-primary/10 px-3 py-2 rounded-lg;
+  }
+
+  /* Custom Scrollbar */
+  .custom-scrollbar::-webkit-scrollbar {
+    @apply w-2 h-2;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-muted-foreground/20 rounded-full hover:bg-muted-foreground/30 transition-colors;
+  }
+}
+
+/* Transitions */
+.page-transition {
+  @apply transition-all duration-500 ease-in-out;
+  animation: fadeInUp 0.5s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .material-symbols-outlined {
   font-family: 'Material Symbols Outlined';
   font-weight: normal;
   font-style: normal;
   font-size: 24px;
-  /* Preferred icon size */
   display: inline-block;
   line-height: 1;
   text-transform: none;
@@ -19,20 +172,32 @@
   word-wrap: normal;
   white-space: nowrap;
   direction: ltr;
-  /* Support for all WebKit browsers. */
   -webkit-font-smoothing: antialiased;
-  /* Support for Safari and Chrome. */
   text-rendering: optimizeLegibility;
-  /* Support for Firefox. */
   -moz-osx-font-smoothing: grayscale;
-  /* Support for IE. */
   font-feature-settings: 'liga';
+}
+
+/* Material Icons Optimization */
+.material-icons-round {
+  font-family: 'Material Icons Round';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
 }
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -40,14 +205,10 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 4px;
+  background: hsl(var(--muted-foreground) / 0.2);
+  border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
-}
-
-.dark ::-webkit-scrollbar-thumb {
-  background: #334155;
+  background: hsl(var(--muted-foreground) / 0.3);
 }

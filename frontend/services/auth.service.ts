@@ -21,6 +21,13 @@ class AuthService {
   }
 
   /**
+   * Register new school/user
+   */
+  async register(data: any): Promise<void> {
+    await apiClient.post(API_ENDPOINTS.AUTH.REGISTER, data);
+  }
+
+  /**
    * Request password reset
    */
   async forgotPassword(email: string): Promise<void> {
@@ -71,6 +78,8 @@ class AuthService {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('access_token');
       localStorage.removeItem('user');
+      sessionStorage.removeItem('access_token');
+      sessionStorage.removeItem('user');
     }
   }
 }

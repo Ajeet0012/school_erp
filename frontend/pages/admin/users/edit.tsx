@@ -25,7 +25,7 @@ export default function EditUser() {
     if (id) {
       usersService.getById(id as string)
         .then(setUser)
-        .catch((err) => {
+        .catch((err: any) => {
           console.error(err);
           setError('User not found');
         })

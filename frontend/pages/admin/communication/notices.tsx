@@ -1,6 +1,10 @@
-/**
- * Notices Page
- * Thin routing file - exports from module
- */
+import AdminLayout from '@/components/layouts/AdminLayout';
+import NoticeBoard from '@/modules/admin/communication/notices/NoticeBoard';
 
-export { default } from '@/modules/admin/communication/notices/Notices';
+export default function NoticesPage() {
+    return (
+        <AdminLayout>
+            <NoticeBoard />
+        </AdminLayout>
+    );
+}

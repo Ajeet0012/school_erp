@@ -2,7 +2,9 @@
  * Application constants
  */
 
-export const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000').trim();
+const envUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000').trim();
+// Ensure no double slash or trailing /api if user accidentally added it
+export const API_BASE_URL = envUrl.replace(/\/api\/?$/, '').replace(/\/$/, '');
 
 // API endpoints
 export const API_ENDPOINTS = {
@@ -61,5 +63,5 @@ export const COOKIE_NAMES = {
 // Storage keys
 export const STORAGE_KEYS = {
   USER: 'user',
-  TOKEN: 'token',
+  ACCESS_TOKEN: 'access_token',
 } as const;

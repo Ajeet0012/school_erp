@@ -2,72 +2,105 @@ import Head from 'next/head';
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 import AdminLayout from '@/components/layouts/AdminLayout';
+import { useStudent } from '@/hooks/useStudent';
+import Skeleton from '@/components/ui/Skeleton';
+import {
+  Fingerprint,
+  School,
+  Users,
+  FileText,
+  Receipt,
+  Printer,
+  Edit3,
+  Mail,
+  Phone,
+  Calendar,
+  MapPin,
+  MoreVertical,
+  AlertCircle,
+  Activity,
+  Award,
+  Clock
+} from 'lucide-react';
+
+const tabs = [
+  { id: 'identity', label: 'Identity Matrix', icon: Fingerprint },
+  { id: 'academic', label: 'Academic Protocol', icon: School },
+  { id: 'nexus', label: 'Nexus Contacts', icon: Users },
+  { id: 'archives', label: 'Data Archives', icon: FileText },
+  { id: 'ledger', label: 'Financial Ledger', icon: Receipt },
+];
 
 export default function StudentProfile() {
   const router = useRouter();
+  const { id } = router.query;
+  const { student, loading, error, refetch } = useStudent(id);
   const [activeTab, setActiveTab] = useState('identity');
 
-  // Mock data for student
-  const student = {
-    id: 'S-2024-0842',
-    name: 'Alex Johnson',
-    avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDltbWj1ZPUOEhaOezhRQBneKqq8udX0IX534Vy4Ouc8i0ZSOFu2XDwBd9jvjlpE8PpGwfljzne-m3tsqW6VTPV9ug72kbG6cb5ZVLtnQAFub9RisOxhwx6VPh_0MWsy_xOLZrSG4wwiZ_ZznoBjP5oE3PjWjq2Ajn3W9ND9IAWfukmvFjiVPcj5qIPR-N2Fh7rB29U63uHwFH1Er-k4YUOhNXYoTfrFNdqUHIchynFwFNIl4WyKqmQ9yzV-7CknZOTJgzw9vAIMYE-',
-    status: 'Operational',
-    class: 'Grade 10-A',
-    attendance: '94.2%',
-    gpa: '3.85',
-    email: 'alex.j@educore.edu',
-    phone: '+1 (555) 123-4567',
-    dob: 'April 12, 2008',
-    gender: 'Male',
-    bloodGroup: 'O+',
-    religion: 'Christianity',
-    admissionDate: 'August 15, 2023',
-    fatherName: 'Robert Johnson',
-    guardianEmail: 'robert.j@nexus.com',
-    address: '1288 Digital Drive, Silicon Valley, CA 94025',
-  };
+  if (loading) {
+    return (
+      <AdminLayout title="Retrieving Profile...">
+        <div className="space-y-8">
+          <div className="flex flex-col md:flex-row gap-8">
+            <Skeleton className="size-48 rounded-[2.5rem]" />
+            <div className="flex-1 space-y-4 pt-4">
+              <Skeleton className="h-10 w-64 rounded-xl" />
+              <Skeleton className="h-6 w-48 rounded-lg" />
+              <div className="flex gap-2">
+                <Skeleton className="h-8 w-24 rounded-full" />
+                <Skeleton className="h-8 w-24 rounded-full" />
+              </div>
+            </div>
+          </div>
+          <Skeleton className="h-16 w-full rounded-2xl" />
+          <Skeleton className="h-[400px] w-full rounded-[2.5rem]" />
+        </div>
+      </AdminLayout>
+    );
+  }
 
-  const tabs = [
-    { id: 'identity', label: 'Identity Matrix', icon: 'fingerprint' },
-    { id: 'academic', label: 'Academic Protocol', icon: 'school' },
-    { id: 'nexus', label: 'Nexus Contacts', icon: 'family_restroom' },
-    { id: 'archives', label: 'Data Archives', icon: 'folder_open' },
-    { id: 'ledger', label: 'Financial Ledger', icon: 'receipt_long' },
-  ];
+  if (error) {
+    return (
+      <AdminLayout title="System Error">
+        <div className="flex flex-col items-center justify-center min-h-[400px] text-center space-y-4">
+          <div className="p-4 rounded-full bg-rose-500/10 text-rose-500">
+            <AlertCircle size={48} />
+          </div>
+          <h2 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-widest">Access Denied</h2>
+          <p className="text-slate-500 max-w-sm italic">{error}</p>
+          <button onClick={() => refetch()} className="px-6 py-2 bg-primary text-white rounded-xl font-bold">Retry Authorization</button>
+        </div>
+      </AdminLayout>
+    );
+  }
+
+  const name = `${student?.firstName} ${student?.lastName}`;
 
   return (
-    <AdminLayout>
+    <AdminLayout title={`Entity: ${name}`}>
       <Head>
-        <title>Entity Profile - {student.name} - EduCore</title>
+        <title>Entity Profile - {name} - EduCore</title>
       </Head>
-
-      {/* Navigation & Breadcrumbs */}
-      <div className="flex flex-col gap-1 pb-6">
-        <nav className="flex items-center gap-2 text-sm mb-4 text-slate-500 dark:text-slate-400">
-          <span className="hover:text-primary transition-colors cursor-pointer" onClick={() => router.push('/admin/dashboard')}>Main Console</span>
-          <span className="material-icons-round text-[16px]">chevron_right</span>
-          <span className="hover:text-primary transition-colors cursor-pointer" onClick={() => router.push('/admin/students')}>Identity Directory</span>
-          <span className="material-icons-round text-[16px]">chevron_right</span>
-          <span className="font-medium text-slate-900 dark:text-white underline decoration-primary decoration-2 underline-offset-4">Entity Profile</span>
-        </nav>
-      </div>
 
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
         <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-2 text-primary mb-1">
+            <Fingerprint size={16} />
+            <span className="text-[10px] font-black uppercase tracking-[0.2em]">Verified Entity Record</span>
+          </div>
           <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight">Entity Profile</h1>
-          <p className="text-slate-500 dark:text-slate-400 font-medium italic">Holistic data overview for verified student entity {student.id}.</p>
+          <p className="text-slate-500 dark:text-slate-400 font-medium italic">Holistic data overview for verified student entity {student?.admissionNumber}.</p>
         </div>
         <div className="flex gap-4">
-          <button className="h-14 w-14 rounded-2xl bg-white dark:bg-card-dark text-slate-500 hover:text-primary transition-all active:scale-95 flex items-center justify-center border border-slate-200 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none">
-            <span className="material-icons-round">print</span>
+          <button className="h-14 w-14 rounded-2xl bg-white dark:bg-slate-900 text-slate-500 hover:text-primary transition-all active:scale-95 flex items-center justify-center border border-slate-200 dark:border-slate-800 shadow-sm">
+            <Printer size={20} />
           </button>
           <button
-            onClick={() => router.push('/admin/students/edit')}
+            onClick={() => router.push(`/admin/students/edit/${student?.id}`)}
             className="px-8 py-4 bg-primary text-white rounded-2xl font-black text-sm shadow-xl shadow-primary/20 hover:-translate-y-1 active:scale-95 transition-all flex items-center gap-2"
           >
-            <span className="material-icons-round text-lg">edit</span>
+            <Edit3 size={18} />
             Modify Protocol
           </button>
         </div>
@@ -75,116 +108,173 @@ export default function StudentProfile() {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
         {/* Left Column: Identity Card */}
-        <div className="lg:col-span-4 xl:col-span-3 lg:sticky lg:top-10">
-          <div className="bg-white dark:bg-card-dark rounded-[2.5rem] border border-slate-200 dark:border-slate-800 p-10 flex flex-col items-center text-center shadow-[0_20px_50px_rgba(0,0,0,0.02)] relative overflow-hidden group">
-            <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-br from-primary/10 to-indigo-500/10"></div>
+        <div className="lg:col-span-4 xl:col-span-3 lg:sticky lg:top-24">
+          <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 p-10 flex flex-col items-center text-center shadow-sm relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-br from-primary/5 to-indigo-500/5"></div>
 
             <div className="relative mb-6">
-              <div className="size-32 rounded-full border-4 border-white dark:border-slate-900 overflow-hidden bg-slate-100 shadow-2xl relative z-10 group-hover:scale-105 transition-transform duration-500">
-                <img src={student.avatar} alt={student.name} className="w-full h-full object-cover" />
+              <div className="size-32 rounded-[2.5rem] border-4 border-white dark:border-slate-900 overflow-hidden bg-slate-100 dark:bg-slate-800 shadow-2xl relative z-10 font-black text-4xl flex items-center justify-center text-slate-300">
+                {student?.firstName?.charAt(0)}{student?.lastName?.charAt(0)}
               </div>
-              <div className="absolute -bottom-1 -right-1 size-8 bg-emerald-500 border-4 border-white dark:border-slate-900 rounded-full z-20 shadow-lg animate-pulse" title="Active"></div>
+              <div className="absolute -bottom-1 -right-1 size-8 bg-emerald-500 border-4 border-white dark:border-slate-900 rounded-2xl z-20 shadow-lg" />
             </div>
 
-            <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-1">{student.name}</h2>
-            <p className="text-slate-400 font-black text-xs uppercase tracking-widest mb-6">{student.id}</p>
+            <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-1 leading-tight">{name}</h2>
+            <p className="text-slate-400 font-black text-[10px] uppercase tracking-[0.2em] mb-6">{student?.admissionNumber}</p>
 
             <div className="flex flex-wrap justify-center gap-2 mb-8">
-              <span className="px-4 py-2 bg-slate-50 dark:bg-slate-900 text-slate-600 dark:text-slate-400 rounded-xl text-[10px] font-black uppercase tracking-wider border border-slate-100 dark:border-slate-800">{student.class}</span>
-              <span className="px-4 py-2 bg-emerald-500/10 text-emerald-500 rounded-xl text-[10px] font-black uppercase tracking-wider border border-emerald-500/20">{student.status}</span>
+              <span className="px-4 py-2 bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 rounded-xl text-[10px] font-black uppercase tracking-wider">{student?.class?.name || 'Unassigned'}</span>
+              <span className="px-4 py-2 bg-emerald-500/10 text-emerald-500 rounded-xl text-[10px] font-black uppercase tracking-wider border border-emerald-500/20">{student?.status}</span>
             </div>
 
             <div className="w-full grid grid-cols-2 gap-4 pt-8 border-t border-slate-100 dark:border-slate-800">
               <div className="text-left">
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Attendance</p>
-                <p className="text-lg font-black text-slate-900 dark:text-white">{student.attendance}</p>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Protocol Status</p>
+                <div className="flex items-center gap-2 text-emerald-500">
+                  <Activity size={12} className="animate-pulse" />
+                  <span className="text-xs font-black uppercase">Active</span>
+                </div>
               </div>
               <div className="text-right">
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">GPA Index</p>
-                <p className="text-lg font-black text-slate-900 dark:text-white">{student.gpa}</p>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Rank Index</p>
+                <div className="flex items-center justify-end gap-1 text-slate-900 dark:text-white">
+                  <Award size={12} className="text-amber-500" />
+                  <span className="text-sm font-black text-slate-900 dark:text-white">Alpha</span>
+                </div>
               </div>
-            </div>
-
-            <div className="w-full mt-8 flex flex-col gap-3">
-              <button className="w-full py-4 rounded-2xl bg-slate-50 dark:bg-slate-900 text-slate-600 dark:text-slate-400 font-black text-xs uppercase tracking-widest hover:bg-primary hover:text-white transition-all">Quick Message</button>
-              <button className="w-full py-4 rounded-2xl bg-slate-50 dark:bg-slate-900 text-slate-600 dark:text-slate-400 font-black text-xs uppercase tracking-widest hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">Identity Badge</button>
             </div>
           </div>
         </div>
 
         {/* Right Column: Tabbed Content */}
-        <div className="lg:col-span-8 xl:col-span-9 flex flex-col gap-10">
+        <div className="lg:col-span-8 xl:col-span-9 space-y-10">
           {/* Tabs Container */}
-          <div className="bg-white dark:bg-card-dark rounded-[2rem] border border-slate-200 dark:border-slate-800 p-3 shadow-xl shadow-slate-200/50 dark:shadow-none overflow-x-auto no-scrollbar">
-            <div className="flex gap-2">
-              {tabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-3 px-6 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-all ${activeTab === tab.id
-                      ? 'bg-primary text-white shadow-lg shadow-primary/20'
-                      : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900'
-                    }`}
-                >
-                  <span className="material-icons-round text-lg">{tab.icon}</span>
-                  {tab.label}
-                </button>
-              ))}
+          <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-2 shadow-sm overflow-x-auto no-scrollbar">
+            <div className="flex gap-1">
+              {tabs.map((tab) => {
+                const Icon = tab.icon;
+                const isActive = activeTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`flex items-center gap-3 px-6 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.1em] whitespace-nowrap transition-all ${isActive
+                      ? 'bg-primary text-white shadow-xl shadow-primary/20 translate-y-[-2px]'
+                      : 'text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800/50'
+                      }`}
+                  >
+                    <Icon size={16} />
+                    {tab.label}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
-          {/* Section: Identity Matrix */}
-          {activeTab === 'identity' && (
-            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-10">
-              <div className="bg-white dark:bg-card-dark rounded-[2.5rem] border border-slate-200 dark:border-slate-800 p-10 lg:p-12 shadow-[0_20px_50px_rgba(0,0,0,0.02)]">
-                <div className="flex items-center gap-4 mb-10">
-                  <div className="h-12 w-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
-                    <span className="material-icons-round">fingerprint</span>
+          {/* Tab Content */}
+          <div className="page-transition min-h-[500px]">
+            {activeTab === 'identity' && (
+              <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] p-10 lg:p-12 shadow-sm space-y-12">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 rounded-2xl bg-primary/10 text-primary">
+                    <Fingerprint size={24} />
                   </div>
                   <div>
-                    <h3 className="text-2xl font-black text-slate-900 dark:text-white">Identity Matrix</h3>
-                    <p className="text-slate-500 dark:text-slate-400 font-medium">Core biological and identification data.</p>
+                    <h3 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">Identity Matrix</h3>
+                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Core Registry Parameters</p>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-                  <DataPoint label="First Identifier" value={student.name.split(' ')[0]} />
-                  <DataPoint label="Last Identifier" value={student.name.split(' ')[1]} />
-                  <DataPoint label="Temporal Origin (DOB)" value={student.dob} />
-                  <DataPoint label="Gender Archetype" value={student.gender} />
-                  <DataPoint label="Biochemical Marker" value={student.bloodGroup} />
-                  <DataPoint label="Philosophical Affiliation" value={student.religion} />
-                  <DataPoint label="Primary Signal (Phone)" value={student.phone} />
-                  <DataPoint label="Digital Endpoint (Email)" value={student.email} isEmail />
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-12 gap-x-8">
+                  <Metric icon={Mail} label="Digital Endpoint" value={student?.email || 'N/A'} isPrimary />
+                  <Metric icon={Phone} label="Primary Signal" value={student?.phone || 'N/A'} />
+                  <Metric icon={Calendar} label="Temporal Origin" value={student?.dateOfBirth || 'N/A'} />
+                  <Metric icon={Activity} label="Gender Axis" value={student?.gender || 'N/A'} />
+                  <Metric icon={MapPin} label="Coordinates" value={student?.address || 'N/A'} className="md:col-span-2" />
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Other tabs follow the same pattern... */}
-          {activeTab !== 'identity' && (
-            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <div className="bg-white dark:bg-card-dark rounded-[2.5rem] border border-slate-200 dark:border-slate-800 p-10 lg:p-12 shadow-[0_20px_50px_rgba(0,0,0,0.02)] flex flex-col items-center justify-center min-h-[400px]">
-                <div className="h-20 w-20 rounded-[2rem] bg-slate-100 dark:bg-slate-800 text-slate-400 flex items-center justify-center mb-6">
-                  <span className="material-icons-round text-4xl">construction</span>
+            {activeTab === 'academic' && (
+              <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] p-10 lg:p-12 shadow-sm space-y-12">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 rounded-2xl bg-sky-500/10 text-sky-500">
+                    <School size={24} />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">Academic Protocol</h3>
+                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Institutional Status Matrix</p>
+                  </div>
                 </div>
-                <h3 className="text-xl font-black text-slate-900 dark:text-white mb-2">Protocol Under Reconstruction</h3>
-                <p className="text-slate-500 dark:text-slate-400 text-center max-w-xs font-medium italic">Detailed data for {activeTab} section is currently being migrated to the EduCore cloud. Check back soon.</p>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                  <div className="p-8 rounded-[2rem] bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 space-y-6">
+                    <div className="flex items-center gap-2">
+                      <div className="size-8 rounded-lg bg-white dark:bg-slate-900 flex items-center justify-center text-primary shadow-sm">
+                        <Award size={16} />
+                      </div>
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Active Enrollment</span>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-2xl font-black text-slate-900 dark:text-white">{student?.class?.name || 'Protocol pending'}</p>
+                      <p className="text-xs font-bold text-slate-400 italic">Sector assignment confirmed.</p>
+                    </div>
+                  </div>
+
+                  <div className="p-8 rounded-[2rem] bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 space-y-6">
+                    <div className="flex items-center gap-2">
+                      <div className="size-8 rounded-lg bg-white dark:bg-slate-900 flex items-center justify-center text-sky-500 shadow-sm">
+                        <Clock size={16} />
+                      </div>
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Temporal Log</span>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-2xl font-black text-slate-900 dark:text-white">{student?.createdAt ? new Date(student.createdAt).toLocaleDateString() : 'Unknown'}</p>
+                      <p className="text-xs font-bold text-slate-400 italic">Initialization date.</p>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
-          )}
+            )}
+
+            {activeTab === 'nexus' && (
+              <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] p-10 lg:p-12 shadow-sm space-y-12">
+                <div className="animate-pulse flex flex-col items-center justify-center min-h-[300px] text-center space-y-6">
+                  <div className="p-6 rounded-full bg-slate-50 dark:bg-slate-800 text-slate-300">
+                    <Users size={64} />
+                  </div>
+                  <div className="space-y-2">
+                    <h3 className="text-xl font-black text-slate-900 dark:text-white">nexus sync in progress</h3>
+                    <p className="text-slate-500 text-sm max-w-sm italic">Guardian liaison endpoints are currently being synchronized with the central directory.</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {['archives', 'ledger'].includes(activeTab) && (
+              <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] p-10 lg:p-12 shadow-sm flex flex-col items-center justify-center min-h-[400px]">
+                <div className="h-20 w-20 rounded-[2rem] bg-slate-100 dark:bg-slate-800 text-slate-400 flex items-center justify-center mb-6">
+                  <AlertCircle size={40} />
+                </div>
+                <h3 className="text-xl font-black text-slate-900 dark:text-white mb-2 uppercase tracking-widest">Protocol Restricted</h3>
+                <p className="text-slate-500 dark:text-slate-400 text-center max-w-xs font-medium italic">Detailed data for {activeTab} section is currently locked for optimization. Upgrade clearance level required.</p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </AdminLayout>
   );
 }
 
-function DataPoint({ label, value, isEmail }: { label: string; value: string; isEmail?: boolean }) {
+function Metric({ icon: Icon, label, value, isPrimary, className = "" }: any) {
   return (
-    <div className="space-y-1">
-      <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{label}</p>
-      <p className={`text-sm font-bold ${isEmail ? 'text-primary' : 'text-slate-900 dark:text-white'}`}>{value}</p>
+    <div className={`space-y-3 ${className}`}>
+      <div className="flex items-center gap-2">
+        <Icon size={14} className="text-slate-400" />
+        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{label}</p>
+      </div>
+      <p className={`text-sm font-black break-all ${isPrimary ? 'text-primary' : 'text-slate-900 dark:text-white'}`}>{value}</p>
     </div>
   );
 }
-

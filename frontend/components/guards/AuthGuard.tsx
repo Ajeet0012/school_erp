@@ -5,8 +5,9 @@
  * Uses localStorage for token check
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/router';
+import { useAuth } from '@/hooks/useAuth';
 
 interface AuthGuardProps {
   children: React.ReactNode;
@@ -14,25 +15,15 @@ interface AuthGuardProps {
 
 export default function AuthGuard({ children }: AuthGuardProps) {
   const router = useRouter();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const { isAuthenticated, loading, user } = useAuth();
+
+  console.log('[AuthGuard] Rendering:', { loading, authenticated: isAuthenticated(), userEmail: user?.email });
 
   useEffect(() => {
-    if (typeof window === 'undefined') {
-      setLoading(false);
-      return;
-    }
-
-    const token = localStorage.getItem('access_token');
-    
-    if (!token) {
+    if (!loading && !isAuthenticated()) {
       router.push('/auth/login');
-      return;
     }
-
-    setIsAuthenticated(true);
-    setLoading(false);
-  }, [router]);
+  }, [loading, isAuthenticated, router]);
 
   if (loading) {
     return (
@@ -42,8 +33,8 @@ export default function AuthGuard({ children }: AuthGuardProps) {
     );
   }
 
-  if (!isAuthenticated) {
-    return null; // Don't render until redirect
+  if (!isAuthenticated()) {
+    return null;
   }
 
   return <>{children}</>;
