@@ -19,31 +19,82 @@ import {
     Download
 } from 'lucide-react';
 import { attendanceService } from '@/services/attendance.service';
+import { classesService } from '@/services/classes.service';
+import { studentsService } from '@/services/students.service';
 import Button from '@/components/ui/Button';
 import Skeleton from '@/components/ui/Skeleton';
 import { Badge } from '@/components/ui/Badge';
 import { toast } from 'react-hot-toast';
 
 export default function TeacherAttendance() {
+    const [classes, setClasses] = useState<any[]>([]);
+    const [selectedClassId, setSelectedClassId] = useState('');
     const [students, setStudents] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
-    const [selectedClass, setSelectedClass] = useState('GRADE_10_A');
+
+    // Fetch classes on mount
+    useEffect(() => {
+        const fetchClasses = async () => {
+            try {
+                // Using classesService to get available classes
+                const data = await classesService.getAll();
+                setClasses(data || []);
+                if (data && data.length > 0) {
+                    setSelectedClassId(data[0].id);
+                }
+            } catch (error) {
+                console.error(error);
+                toast.error('Failed to load classes.');
+            }
+        };
+        fetchClasses();
+    }, []);
 
     useEffect(() => {
-        const fetchAttendance = async () => {
+        if (!selectedClassId) return;
+
+        const fetchData = async () => {
             setLoading(true);
             try {
-                const data = await attendanceService.getStudentAttendance({ classId: selectedClass, date });
-                setStudents(data.data || data);
+                // Parallel fetch: Students (master list) and Attendance (for date)
+                const [studentsModule, attendanceModule] = await Promise.all([
+                    import('@/services/students.service'),
+                    import('@/services/attendance.service')
+                ]);
+
+                const [studentsResponse, attendanceResponse] = await Promise.all([
+                    studentsModule.studentsService.getByClass(selectedClassId),
+                    attendanceModule.attendanceService.getStudentAttendance({ classId: selectedClassId, date })
+                ]);
+
+                // Handle student list (backend might return array or object with data)
+                const studentList = Array.isArray(studentsResponse) ? studentsResponse : (studentsResponse as any).data || [];
+
+                // Handle attendance records
+                const attendanceRecords = attendanceResponse.data || attendanceResponse || [];
+                const attendanceMap = new Map(attendanceRecords.map((r: any) => [r.studentId, r.status]));
+
+                // Merge: Master list + Attendance Status
+                const mergedData = studentList.map((student: any) => ({
+                    ...student,
+                    id: student.id,
+                    name: `${student.firstName} ${student.lastName}`,
+                    status: attendanceMap.get(student.id) || 'PRESENT', // Default to PRESENT if not marked
+                    studentId: student.admissionNumber || student.id
+                }));
+
+                setStudents(mergedData);
             } catch (error: any) {
-                toast.error('Failed to synchronize attendance nodes.');
+                console.error(error);
+                // toast.error('Failed to synchronize attendance nodes.');
+                setStudents([]);
             } finally {
                 setLoading(false);
             }
         };
-        fetchAttendance();
-    }, [date, selectedClass]);
+        fetchData();
+    }, [date, selectedClassId]);
 
     const onMark = (id: string, status: string) => {
         setStudents(prev => prev.map(s => s.id === id ? { ...s, status } : s));
@@ -52,7 +103,7 @@ export default function TeacherAttendance() {
     const onSave = async () => {
         try {
             await attendanceService.markBulkAttendance({
-                classId: selectedClass,
+                classId: selectedClassId,
                 date,
                 attendance: students.map(s => ({ studentId: s.id, status: s.status }))
             });
@@ -73,6 +124,16 @@ export default function TeacherAttendance() {
                     <p className="text-sm font-medium text-slate-500 italic">Verify student presence nodes, manage participation protocols, and synchronize with the academic core.</p>
                 </div>
                 <div className="flex items-center gap-3">
+                    <select
+                        value={selectedClassId}
+                        onChange={(e) => setSelectedClassId(e.target.value)}
+                        className="bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 rounded-2xl px-4 py-4 text-xs font-black uppercase tracking-widest text-slate-900 dark:text-white outline-none focus:ring-4 focus:ring-primary/10 transition-all shadow-sm"
+                    >
+                        {classes.length === 0 && <option>Loading...</option>}
+                        {classes.map(c => (
+                            <option key={c.id} value={c.id}>{c.name}</option>
+                        ))}
+                    </select>
                     <input
                         type="date"
                         value={date}

@@ -151,6 +151,7 @@ export interface UpdateTeacherDto extends Partial<CreateTeacherDto> { }
 export interface Class {
   id: string;
   name: string;
+  numericName?: number; // Added for numeric level/grade
   grade?: string;
   description?: string;
   schoolId?: string;
@@ -162,6 +163,7 @@ export interface Class {
 
 export interface CreateClassDto {
   name: string;
+  numericName?: number;
   grade?: string;
   description?: string;
   teacherId?: string;

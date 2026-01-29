@@ -13,8 +13,8 @@ class StudentsService {
    * Get all students
    */
   async getAll(params?: PaginationParams): Promise<PaginatedResponse<Student>> {
-    const response = await apiClient.get(API_ENDPOINTS.STUDENTS, { params });
-    return response.data!;
+    const response = await apiClient.get<PaginatedResponse<Student>>(API_ENDPOINTS.STUDENTS, { params });
+    return response as any;
   }
 
   /**
@@ -23,6 +23,14 @@ class StudentsService {
   async getById(id: string): Promise<Student> {
     const response = await apiClient.get(`${API_ENDPOINTS.STUDENTS}/${id}`);
     return mapStudent(response.data) as Student;
+  }
+
+  /**
+   * Get students by class ID
+   */
+  async getByClass(classId: string): Promise<Student[]> {
+    const response = await apiClient.get(`${API_ENDPOINTS.STUDENTS}/class/${classId}`);
+    return (response as any).data || response;
   }
 
   /**

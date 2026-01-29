@@ -90,16 +90,31 @@ export default function StudentAttendance() {
     const fetchStudents = async () => {
       setLoadingStudents(true);
       try {
-        const data = await studentsService.getAll({ sectionId: selectedSectionId });
-        setStudents(data.data || []);
+        // Use getByClass instead of getAll to match backend route
+        const data: any = await studentsService.getByClass(selectedClassId);
+        // Backend might return array directly or wrapped in data property
+        const studentList = Array.isArray(data) ? data : (data.data || []);
+
+        // Filter by section if needed, although backend class fetch might include section filtering or return all
+        // Ideally backend supports /students/class/:classId?sectionId=... but the user prompt specificied /students/class/:classId
+        // We will filter client side if the result contains all students in class, or just accept the list.
+        // Assuming the list is correct for now.
+
+        // If we strictly need to filter by sectionId and the API returns all class students:
+        const filteredStudents = selectedSectionId
+          ? studentList.filter((s: Student) => s.sectionId === selectedSectionId)
+          : studentList;
+
+        setStudents(filteredStudents);
 
         // Initialize attendance map
         const initialMap: Record<string, AttendanceStatus> = {};
-        (data.data || []).forEach((student: Student) => {
+        filteredStudents.forEach((student: Student) => {
           initialMap[student.id] = 'PRESENT';
         });
         setAttendanceMap(initialMap);
       } catch (err: any) {
+        console.error(err);
         toast.error('Occupant registry retrieval failed');
       } finally {
         setLoadingStudents(false);

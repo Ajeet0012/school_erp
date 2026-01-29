@@ -23,12 +23,12 @@ class AttendanceService {
 
   async getStudentAttendance(params: any) {
     const response = await apiClient.get(`${API_ENDPOINTS.ATTENDANCE}/students`, { params });
-    return response.data!;
+    return response;
   }
 
   async getTeacherAttendance(params: any) {
     const response = await apiClient.get(`${API_ENDPOINTS.ATTENDANCE}/teachers`, { params });
-    return response.data!;
+    return response;
   }
 
   async getReports(params: any) {

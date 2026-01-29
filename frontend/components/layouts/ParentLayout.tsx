@@ -44,30 +44,30 @@ function ParentLayoutContent({ children }: ParentLayoutProps) {
     : childrenList.find(c => c.id === selectedChildId);
 
   return (
-    <div className="min-h-screen bg-background text-foreground font-sans flex">
+    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans flex">
       {/* Sidebar - Mobile Overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          className="fixed inset-0 bg-slate-900/20 backdrop-blur-sm z-40 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* Sidebar */}
       <aside className={`
-        fixed lg:sticky top-0 left-0 z-50 h-screen w-72 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 
+        fixed lg:sticky top-0 left-0 z-50 h-screen w-72 bg-white border-r border-slate-200 
         transition-transform duration-300 ease-in-out
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
         <div className="flex flex-col h-full">
           {/* Logo */}
-          <div className="h-20 flex items-center px-8 border-b border-slate-100 dark:border-slate-800">
+          <div className="h-20 flex items-center px-8 border-b border-slate-100">
             <div className="flex items-center gap-3">
-              <div className="size-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
+              <div className="size-10 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-sm shadow-blue-600/20">
                 <Users size={24} />
               </div>
               <div>
-                <h1 className="text-lg font-black tracking-tight text-slate-900 dark:text-white">EduCore</h1>
+                <h1 className="text-lg font-black tracking-tight text-slate-900">EduCore</h1>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Parent Portal</p>
               </div>
             </div>
@@ -81,12 +81,12 @@ function ParentLayoutContent({ children }: ParentLayoutProps) {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all duration-200 group ${isActive
-                      ? 'bg-primary text-white shadow-lg shadow-primary/25 font-bold'
-                      : 'text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-primary font-medium'
+                  className={`flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all duration-200 group ${isActive
+                    ? 'bg-blue-50 text-blue-700 font-bold'
+                    : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900 font-medium'
                     }`}
                 >
-                  <span className={isActive ? 'text-white' : 'text-slate-400 group-hover:text-primary'}>
+                  <span className={isActive ? 'text-blue-600' : 'text-slate-400 group-hover:text-slate-600'}>
                     {item.icon}
                   </span>
                   <span className="text-sm tracking-wide">{item.label}</span>
@@ -96,13 +96,13 @@ function ParentLayoutContent({ children }: ParentLayoutProps) {
           </nav>
 
           {/* User Profile */}
-          <div className="p-4 border-t border-slate-100 dark:border-slate-800">
-            <div className="bg-slate-50 dark:bg-slate-800 rounded-2xl p-4 flex items-center gap-4">
-              <div className="size-10 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
-                {/* Placeholder Avatar */}
+          <div className="p-4 border-t border-slate-100">
+            <div className="bg-slate-50 rounded-2xl p-4 flex items-center gap-4 border border-slate-200">
+              <div className="size-10 rounded-full bg-slate-200 overflow-hidden flex items-center justify-center text-slate-500">
+                <Users size={20} />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-bold text-slate-900 dark:text-white truncate">{user?.firstName} {user?.lastName}</p>
+                <p className="text-sm font-bold text-slate-900 truncate">{user?.firstName} {user?.lastName}</p>
                 <p className="text-xs text-slate-400 truncate">Guardian</p>
               </div>
               <button onClick={logout} className="text-slate-400 hover:text-rose-500 transition-colors">
@@ -116,20 +116,20 @@ function ParentLayoutContent({ children }: ParentLayoutProps) {
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Header */}
-        <header className="h-20 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-30 border-b border-slate-200 dark:border-slate-800 px-8 flex items-center justify-between">
+        <header className="h-20 bg-white sticky top-0 z-30 border-b border-slate-200 px-8 flex items-center justify-between shadow-sm">
           <button
-            className="lg:hidden p-2 -ml-2 text-slate-500"
+            className="lg:hidden p-2 -ml-2 text-slate-500 hover:bg-slate-100 rounded-lg"
             onClick={() => setSidebarOpen(true)}
           >
             <Menu size={24} />
           </button>
 
-          <div className="hidden md:flex items-center bg-slate-100 dark:bg-slate-800 rounded-2xl px-4 py-2.5 w-64">
+          <div className="hidden md:flex items-center bg-slate-50 rounded-xl px-4 py-2.5 w-64 border border-slate-200">
             <Search size={18} className="text-slate-400 mr-3" />
             <input
               type="text"
-              placeholder="Search..."
-              className="bg-transparent border-none text-sm font-medium text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-0 w-full"
+              placeholder="Search activity..."
+              className="bg-transparent border-none text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:ring-0 w-full"
             />
           </div>
 
@@ -138,18 +138,18 @@ function ParentLayoutContent({ children }: ParentLayoutProps) {
             <div className="relative">
               <button
                 onClick={() => setChildDropdownOpen(!childDropdownOpen)}
-                className="flex items-center gap-3 bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 rounded-2xl pl-2 pr-4 py-1.5 hover:border-primary/20 transition-all"
+                className="flex items-center gap-3 bg-white border border-slate-200 rounded-xl pl-2 pr-4 py-1.5 hover:border-blue-300 transition-all shadow-sm"
               >
                 {selectedChildId === 'ALL' ? (
-                  <div className="size-8 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                  <div className="size-8 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600">
                     <Users size={16} />
                   </div>
                 ) : (
-                  <img src={selectedChild?.avatar} alt="" className="size-8 rounded-xl bg-slate-200" />
+                  <img src={selectedChild?.avatar} alt="" className="size-8 rounded-lg bg-slate-200" />
                 )}
                 <div className="text-left hidden sm:block">
                   <p className="text-[10px] uppercase font-bold text-slate-400 tracking-widest leading-none mb-0.5">Viewing</p>
-                  <p className="text-xs font-bold text-slate-900 dark:text-white leading-none">{selectedChild?.name}</p>
+                  <p className="text-xs font-bold text-slate-900 leading-none">{selectedChild?.name}</p>
                 </div>
                 <ChevronDown size={14} className="text-slate-400 ml-2" />
               </button>
@@ -157,22 +157,22 @@ function ParentLayoutContent({ children }: ParentLayoutProps) {
               {childDropdownOpen && (
                 <>
                   <div className="fixed inset-0 z-10" onClick={() => setChildDropdownOpen(false)} />
-                  <div className="absolute top-full right-0 mt-2 w-64 bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-800 p-2 z-20">
+                  <div className="absolute top-full right-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-slate-200 p-2 z-20">
                     <button
                       onClick={() => { setSelectedChildId('ALL'); setChildDropdownOpen(false); }}
-                      className={`w-full flex items-center gap-3 p-3 rounded-xl transition-colors ${selectedChildId === 'ALL' ? 'bg-primary/5 text-primary' : 'hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700'}`}
+                      className={`w-full flex items-center gap-3 p-3 rounded-xl transition-colors ${selectedChildId === 'ALL' ? 'bg-blue-50 text-blue-700' : 'hover:bg-slate-50 text-slate-700'}`}
                     >
-                      <div className="size-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                      <div className="size-8 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600">
                         <Users size={16} />
                       </div>
                       <span className="font-bold text-sm">Family Overview</span>
                     </button>
-                    <div className="h-px bg-slate-100 dark:bg-slate-800 my-2" />
+                    <div className="h-px bg-slate-100 my-2" />
                     {childrenList.map(child => (
                       <button
                         key={child.id}
                         onClick={() => { setSelectedChildId(child.id); setChildDropdownOpen(false); }}
-                        className={`w-full flex items-center gap-3 p-3 rounded-xl transition-colors ${selectedChildId === child.id ? 'bg-primary/5 text-primary' : 'hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700'}`}
+                        className={`w-full flex items-center gap-3 p-3 rounded-xl transition-colors ${selectedChildId === child.id ? 'bg-blue-50 text-blue-700' : 'hover:bg-slate-50 text-slate-700'}`}
                       >
                         <img src={child.avatar} alt="" className="size-8 rounded-lg bg-slate-200" />
                         <div className="text-left">
@@ -187,9 +187,9 @@ function ParentLayoutContent({ children }: ParentLayoutProps) {
             </div>
 
             <div className="relative">
-              <button className="size-10 rounded-2xl bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 flex items-center justify-center text-slate-400 hover:text-primary hover:border-primary/20 transition-all">
+              <button className="size-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:text-blue-600 hover:bg-slate-50 transition-all shadow-sm">
                 <Bell size={20} />
-                <span className="absolute top-2 right-2.5 size-2 bg-rose-500 rounded-full border-2 border-white dark:border-slate-900" />
+                <span className="absolute top-2 right-2.5 size-2 bg-rose-500 rounded-full border-2 border-white" />
               </button>
             </div>
           </div>

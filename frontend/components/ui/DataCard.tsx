@@ -18,19 +18,11 @@ interface DataCardProps {
 }
 
 const colorMap = {
-    primary: 'bg-primary/10 text-primary border-primary/20',
-    success: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20',
-    warning: 'bg-amber-500/10 text-amber-500 border-amber-500/20',
-    error: 'bg-rose-500/10 text-rose-500 border-rose-500/20',
-    info: 'bg-sky-500/10 text-sky-500 border-sky-500/20',
-};
-
-const iconBgMap = {
-    primary: 'bg-primary',
-    success: 'bg-emerald-500',
-    warning: 'bg-amber-500',
-    error: 'bg-rose-500',
-    info: 'bg-sky-500',
+    primary: 'bg-blue-50 text-blue-600',
+    success: 'bg-emerald-50 text-emerald-600',
+    warning: 'bg-amber-50 text-amber-600',
+    error: 'bg-red-50 text-red-600',
+    info: 'bg-sky-50 text-sky-600',
 };
 
 export default function DataCard({
@@ -45,44 +37,53 @@ export default function DataCard({
 }: DataCardProps) {
     if (error) {
         return (
-            <div className={`card bg-card border-destructive/50 rounded-2xl p-6 flex flex-col items-center justify-center min-h-[140px] ${className}`}>
-                <span className="material-icons-round text-destructive mb-2">error_outline</span>
-                <p className="text-xs font-bold text-destructive uppercase tracking-widest text-center">Failed to load data</p>
+            <div className={`bg-white border border-red-200 rounded-lg p-6 flex flex-col items-center justify-center min-h-[140px] shadow-sm ${className}`}>
+                <span className="text-red-500 mb-2">⚠</span>
+                <p className="text-sm font-medium text-red-600">Failed to load data</p>
             </div>
         );
     }
 
     return (
-        <div className={`card card-hover rounded-2xl p-6 group ${className}`}>
+        <div className={`
+            bg-white rounded-lg p-6 
+            border border-slate-200 shadow-sm
+            transition-all duration-200
+            ${className}
+        `}>
             <div className="flex items-start justify-between mb-4">
                 <div className="flex flex-col">
-                    <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">{title}</p>
+                    <p className="text-sm font-medium text-slate-500">{title}</p>
                     {isLoading ? (
-                        <Skeleton className="h-8 w-24 mt-2" />
+                        <Skeleton className="h-8 w-24 mt-2 bg-slate-100" />
                     ) : (
-                        <h3 className="text-2xl font-black text-foreground mt-1 tracking-tight">
+                        <h3 className="text-2xl font-bold text-slate-900 mt-1">
                             {value ?? '0'}
                         </h3>
                     )}
                 </div>
                 {Icon && (
-                    <div className={`p-3 rounded-xl ${colorMap[color]} group-hover:scale-110 transition-transform duration-300`}>
+                    <div className={`p-2.5 rounded-lg ${colorMap[color]}`}>
                         <Icon size={20} />
                     </div>
                 )}
             </div>
 
-            {trend && !isLoading && (
-                <div className="flex items-center gap-2">
-                    <div className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${trend.isPositive ? 'bg-emerald-500/10 text-emerald-600' : 'bg-rose-500/10 text-rose-600'}`}>
-                        <span className="material-icons-round text-xs">{trend.isPositive ? 'trending_up' : 'trending_down'}</span>
+            {/* Bottom Section: Trend or Footer */}
+            {(trend && !isLoading) && (
+                <div className="flex items-center gap-2 mt-2">
+                    <div className={`
+                        flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-semibold
+                        ${trend.isPositive ? 'text-emerald-700 bg-emerald-50' : 'text-red-700 bg-red-50'}
+                    `}>
+                        <span>{trend.isPositive ? '↑' : '↓'}</span>
                         {trend.value}
                     </div>
-                    {trend.label && <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{trend.label}</span>}
+                    {trend.label && <span className="text-xs text-slate-500">{trend.label}</span>}
                 </div>
             )}
 
-            {isLoading && <Skeleton className="h-4 w-32 mt-2" />}
+            {isLoading && <Skeleton className="h-4 w-32 mt-2 bg-slate-100" />}
         </div>
     );
 }

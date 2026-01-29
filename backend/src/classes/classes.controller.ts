@@ -18,9 +18,9 @@ import { Role } from '@prisma/client';
 
 @Controller('classes')
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles(Role.SCHOOL_ADMIN)
+@Roles(Role.SCHOOL_ADMIN, Role.TEACHER, Role.SUPER_ADMIN)
 export class ClassesController {
-  constructor(private readonly classesService: ClassesService) {}
+  constructor(private readonly classesService: ClassesService) { }
 
   @Post()
   create(

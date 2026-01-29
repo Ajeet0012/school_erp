@@ -1,5 +1,6 @@
 import { ReactNode } from 'react';
 import Skeleton from './Skeleton';
+import { ChevronLeft, ChevronRight, Inbox } from 'lucide-react';
 
 export interface Column<T> {
     header: string;
@@ -34,14 +35,14 @@ export default function DataTable<T>({
 }: DataTableProps<T>) {
     return (
         <div className={`flex flex-col ${className}`}>
-            <div className="overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-900 shadow-sm shadow-slate-200/50 dark:shadow-none">
+            <div className="overflow-hidden border border-slate-200 rounded-lg bg-white shadow-sm">
                 <table className="w-full text-left border-collapse">
                     <thead>
-                        <tr className="bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
+                        <tr className="bg-slate-50 border-b border-slate-200">
                             {columns.map((column, i) => (
                                 <th
                                     key={i}
-                                    className={`px-6 py-4 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] ${column.className || ''}`}
+                                    className={`px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider ${column.className || ''}`}
                                     style={{ width: column.width }}
                                 >
                                     {column.header}
@@ -49,23 +50,25 @@ export default function DataTable<T>({
                             ))}
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                    <tbody className="divide-y divide-slate-100 bg-white">
                         {isLoading ? (
                             Array.from({ length: 5 }).map((_, i) => (
                                 <tr key={i}>
                                     {columns.map((_, j) => (
                                         <td key={j} className="px-6 py-4">
-                                            <Skeleton className="h-5 w-full" />
+                                            <Skeleton className="h-4 w-full bg-slate-100" />
                                         </td>
                                     ))}
                                 </tr>
                             ))
                         ) : data.length === 0 ? (
                             <tr>
-                                <td colSpan={columns.length} className="px-6 py-12 text-center">
+                                <td colSpan={columns.length} className="px-6 py-12 text-center text-slate-500">
                                     <div className="flex flex-col items-center justify-center gap-2">
-                                        <span className="material-icons-round text-slate-300 text-4xl">folder_off</span>
-                                        <p className="text-sm font-bold text-slate-400 dark:text-slate-500 italic uppercase tracking-widest">{emptyMessage}</p>
+                                        <div className="p-3 bg-slate-50 rounded-full">
+                                            <Inbox size={24} className="text-slate-400" />
+                                        </div>
+                                        <p className="text-sm">{emptyMessage}</p>
                                     </div>
                                 </td>
                             </tr>
@@ -74,10 +77,16 @@ export default function DataTable<T>({
                                 <tr
                                     key={i}
                                     onClick={() => onRowClick?.(item)}
-                                    className={`group transition-colors duration-200 ${onRowClick ? 'cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50' : 'hover:bg-slate-50/50 dark:hover:bg-slate-800/30'}`}
+                                    className={`
+                                        group transition-colors duration-150
+                                        ${onRowClick
+                                            ? 'cursor-pointer hover:bg-slate-50'
+                                            : 'hover:bg-slate-50'
+                                        }
+                                    `}
                                 >
                                     {columns.map((column, j) => (
-                                        <td key={j} className={`px-6 py-4 text-sm font-bold text-slate-700 dark:text-slate-200 ${column.className || ''}`}>
+                                        <td key={j} className={`px-6 py-4 text-sm text-slate-700 ${column.className || ''}`}>
                                             {typeof column.accessor === 'function' ? column.accessor(item) : (item[column.accessor] as ReactNode)}
                                         </td>
                                     ))}
@@ -89,24 +98,30 @@ export default function DataTable<T>({
             </div>
 
             {pagination && (
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 px-4">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                        Showing <span className="text-slate-900 dark:text-white">{(pagination.page - 1) * pagination.limit + 1}</span> - <span className="text-slate-900 dark:text-white">{Math.min(pagination.page * pagination.limit, pagination.total)}</span> of <span className="text-slate-900 dark:text-white">{pagination.total}</span> entries
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-4 px-1">
+                    <p className="text-xs text-slate-500">
+                        Showing <span className="font-medium text-slate-900">{(pagination.page - 1) * pagination.limit + 1}</span> to <span className="font-medium text-slate-900">{Math.min(pagination.page * pagination.limit, pagination.total)}</span> of <span className="font-medium text-slate-900">{pagination.total}</span>
                     </p>
                     <div className="flex items-center gap-2">
                         <button
                             onClick={() => pagination.onPageChange(pagination.page - 1)}
                             disabled={pagination.page === 1 || isLoading}
-                            className="p-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-400 hover:text-primary hover:border-primary disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-95"
+                            className="p-1.5 rounded-md border border-slate-300 bg-white text-slate-500 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                         >
-                            <span className="material-icons-round text-xl">chevron_left</span>
+                            <ChevronLeft size={16} />
                         </button>
                         <div className="flex items-center gap-1">
                             {Array.from({ length: Math.min(5, Math.ceil(pagination.total / pagination.limit)) }).map((_, i) => (
                                 <button
                                     key={i}
                                     onClick={() => pagination.onPageChange(i + 1)}
-                                    className={`h-10 w-10 rounded-xl text-xs font-black transition-all active:scale-95 ${pagination.page === i + 1 ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-500 hover:border-primary hover:text-primary'}`}
+                                    className={`
+                                        h-8 w-8 rounded-md text-xs font-medium transition-colors
+                                        ${pagination.page === i + 1
+                                            ? 'bg-blue-600 text-white border border-blue-600'
+                                            : 'bg-white border border-slate-300 text-slate-600 hover:bg-slate-50'
+                                        }
+                                    `}
                                 >
                                     {i + 1}
                                 </button>
@@ -115,9 +130,9 @@ export default function DataTable<T>({
                         <button
                             onClick={() => pagination.onPageChange(pagination.page + 1)}
                             disabled={pagination.page === Math.ceil(pagination.total / pagination.limit) || isLoading}
-                            className="p-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-400 hover:text-primary hover:border-primary disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-95"
+                            className="p-1.5 rounded-md border border-slate-300 bg-white text-slate-500 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                         >
-                            <span className="material-icons-round text-xl">chevron_right</span>
+                            <ChevronRight size={16} />
                         </button>
                     </div>
                 </div>

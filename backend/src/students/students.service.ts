@@ -258,20 +258,28 @@ export class StudentsService {
     listStudentsDto: ListStudentsDto,
     currentUser: { userId: string; role: Role; schoolId?: string },
   ): Promise<PaginatedResult<any>> {
-    if (currentUser.role !== Role.SCHOOL_ADMIN) {
-      throw new ForbiddenException('Only SCHOOL_ADMIN can list students');
+    // Relaxed Check: School Admin, Teacher, and Super Admin can list
+    if (
+      currentUser.role !== Role.SCHOOL_ADMIN &&
+      currentUser.role !== Role.TEACHER &&
+      currentUser.role !== Role.SUPER_ADMIN
+    ) {
+      throw new ForbiddenException('Insufficient permissions to list students');
     }
 
-    if (!currentUser.schoolId) {
-      throw new ForbiddenException('School admin must be associated with a school');
+    if (!currentUser.schoolId && currentUser.role !== Role.SUPER_ADMIN) {
+      throw new ForbiddenException('User must be associated with a school');
     }
 
     const { page = 1, limit = 10, classId, sectionId } = listStudentsDto;
     const skip = (page - 1) * limit;
 
-    const where: any = {
-      schoolId: currentUser.schoolId,
-    };
+    const where: any = {};
+
+    // If not Super Admin, restrict to school
+    if (currentUser.role !== Role.SUPER_ADMIN) {
+      where.schoolId = currentUser.schoolId;
+    }
 
     if (classId) {
       // Verify class belongs to school
@@ -376,8 +384,11 @@ export class StudentsService {
     classId: string,
     currentUser: { userId: string; role: Role; schoolId?: string },
   ) {
-    if (currentUser.role !== Role.SCHOOL_ADMIN) {
-      throw new ForbiddenException('Only SCHOOL_ADMIN can view students by class');
+    if (
+      currentUser.role !== Role.SCHOOL_ADMIN &&
+      currentUser.role !== Role.TEACHER
+    ) {
+      throw new ForbiddenException('Insufficient permissions to view students by class');
     }
 
     if (!currentUser.schoolId) {

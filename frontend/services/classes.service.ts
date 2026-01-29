@@ -8,8 +8,8 @@ import { Class, CreateClassDto, UpdateClassDto, Section } from '@/utils/types';
 
 class ClassesService {
   async getAll(): Promise<Class[]> {
-    const response = await apiClient.get(API_ENDPOINTS.CLASSES);
-    return response.data!;
+    const response = await apiClient.get<Class[]>(API_ENDPOINTS.CLASSES);
+    return response as any;
   }
 
   async getById(id: string): Promise<Class> {

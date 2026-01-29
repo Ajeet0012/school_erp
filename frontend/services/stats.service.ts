@@ -23,17 +23,17 @@ class StatsService {
         // Note: You might need to add a STATS endpoint to constants if it doesn't exist
         // For now, assuming a general stats endpoint or using a placeholder
         const response = await apiClient.get<DashboardStats>('/stats/dashboard');
-        return response.data!;
+        return response as any;
     }
 
     async getTeacherStats(): Promise<any> {
         const response = await apiClient.get('/stats/teacher');
-        return response.data!;
+        return response;
     }
 
     async getStudentStats(): Promise<any> {
         const response = await apiClient.get('/stats/student');
-        return response.data!;
+        return response;
     }
 }
 

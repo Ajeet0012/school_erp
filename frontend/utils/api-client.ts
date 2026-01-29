@@ -5,7 +5,7 @@
  */
 
 import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from 'axios';
-import { API_BASE_URL } from './constants';
+import { API_BASE_URL, STORAGE_KEYS } from './constants';
 import { ApiResponse } from './types';
 
 class ApiClient {
@@ -19,12 +19,15 @@ class ApiClient {
       },
     });
 
-    // Request interceptor - Add auth token to requests from localStorage
+    // Request interceptor - Add auth token to requests from localStorage/sessionStorage
     this.client.interceptors.request.use(
       (config: InternalAxiosRequestConfig) => {
         if (typeof window !== 'undefined') {
-          const localToken = localStorage.getItem('access_token');
-          const sessionToken = sessionStorage.getItem('access_token');
+          // Check both storages for the token using the centralized key
+          const localToken = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
+          const sessionToken = sessionStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
+
+          // Prioritize local token (Remember Me) or fall back to session token
           const token = localToken || sessionToken;
 
           if (token && config.headers) {
@@ -47,11 +50,13 @@ class ApiClient {
           if (typeof window !== 'undefined') {
             // Prevent redirect loops
             const currentPath = window.location.pathname;
-            if (currentPath !== '/auth/login' && currentPath !== '/auth/register') {
-              localStorage.removeItem('access_token');
-              localStorage.removeItem('user');
-              sessionStorage.removeItem('access_token');
-              sessionStorage.removeItem('user');
+            const isAuthPage = currentPath.startsWith('/auth/');
+
+            if (!isAuthPage) {
+              localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
+              localStorage.removeItem(STORAGE_KEYS.USER);
+              sessionStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
+              sessionStorage.removeItem(STORAGE_KEYS.USER);
               window.location.href = '/auth/login';
             }
           }

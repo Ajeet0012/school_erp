@@ -51,7 +51,7 @@ export class StudentsController {
   }
 
   @Get()
-  @Roles(Role.SCHOOL_ADMIN)
+  @Roles(Role.SCHOOL_ADMIN, Role.TEACHER, Role.SUPER_ADMIN)
   findAll(
     @Query() listStudentsDto: ListStudentsDto,
     @CurrentUser() user: any,

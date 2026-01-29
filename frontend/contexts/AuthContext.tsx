@@ -24,67 +24,101 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     // Initialize auth state
     useEffect(() => {
-        console.log('[AuthContext] Initializing');
+        let mounted = true;
+
         const initAuth = async () => {
+            console.log('[AuthContext] Initializing Auth State');
+
             if (typeof window === 'undefined') {
-                setLoading(false);
-                return;
-            }
-
-            // Check both storages
-            const localToken = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
-            const sessionToken = sessionStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
-            const token = localToken || sessionToken;
-
-            if (!token) {
-                setLoading(false);
+                if (mounted) setLoading(false);
                 return;
             }
 
             try {
-                // Try to get user from storage first
-                const localUserStr = localStorage.getItem(STORAGE_KEYS.USER);
-                const sessionUserStr = sessionStorage.getItem(STORAGE_KEYS.USER);
-                const storedUserStr = localUserStr || sessionUserStr;
+                // Check both storages safely
+                const localToken = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
+                const sessionToken = sessionStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
+                const token = localToken || sessionToken;
 
-                if (storedUserStr) {
-                    const storedUser = JSON.parse(storedUserStr);
-                    if (storedUser && storedUser.id && storedUser.email && isValidRole(storedUser.role)) {
-                        setUser(storedUser);
-                        setAuthenticated(true);
+                console.log('[AuthContext] Token found:', !!token);
+
+                if (!token) {
+                    if (mounted) {
                         setLoading(false);
-                        return;
+                        setAuthenticated(false);
+                    }
+                    return;
+                }
+
+                // Verify Cache First
+                try {
+                    const localUserStr = localStorage.getItem(STORAGE_KEYS.USER);
+                    const sessionUserStr = sessionStorage.getItem(STORAGE_KEYS.USER);
+                    const storedUserStr = localUserStr || sessionUserStr;
+
+                    if (storedUserStr) {
+                        const storedUser = JSON.parse(storedUserStr);
+                        if (storedUser && storedUser.id && isValidRole(storedUser.role)) {
+                            console.log('[AuthContext] Restoring user from storage cache');
+                            if (mounted) {
+                                setUser(storedUser);
+                                setAuthenticated(true);
+                                setLoading(false); // Done!
+                            }
+                            // Optional: Background re-verification could go here
+                            return;
+                        }
+                    }
+                } catch (e) {
+                    console.warn('[AuthContext] Cache parse error, falling back to network', e);
+                }
+
+                // Call API if no cache or cache invalid
+                console.log('[AuthContext] Fetching fresh profile from API');
+                const fetchedUser = await authService.getProfile();
+
+                if (mounted) {
+                    if (fetchedUser && fetchedUser.id && isValidRole(fetchedUser.role)) {
+                        console.log('[AuthContext] Profile fetched successfully');
+                        // Update storage
+                        const storage = localToken ? localStorage : sessionStorage;
+                        storage.setItem(STORAGE_KEYS.USER, JSON.stringify(fetchedUser));
+
+                        setUser(fetchedUser);
+                        setAuthenticated(true);
+                    } else {
+                        console.error('[AuthContext] Invalid user data received');
+                        throw new Error('Invalid user role or data');
                     }
                 }
 
-                // If no valid user in storage, fetch from backend
-                const fetchedUser = await authService.getProfile();
-                if (fetchedUser && isValidRole(fetchedUser.role)) {
-                    // Update storage with fresh user data
-                    const storage = localToken ? localStorage : sessionStorage;
-                    storage.setItem(STORAGE_KEYS.USER, JSON.stringify(fetchedUser));
-
-                    setUser(fetchedUser);
-                    setAuthenticated(true);
-                } else {
-                    throw new Error('Invalid user role or data');
-                }
-
             } catch (error) {
-                // Token invalid or expired - clear all storage
-                console.error('Auth initialization failed:', error);
+                console.error('[AuthContext] Init error:', error);
+
+                // Clear storage on error
                 localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
                 localStorage.removeItem(STORAGE_KEYS.USER);
                 sessionStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
                 sessionStorage.removeItem(STORAGE_KEYS.USER);
-                setUser(null);
-                setAuthenticated(false);
+
+                if (mounted) {
+                    setUser(null);
+                    setAuthenticated(false);
+                }
             } finally {
-                setLoading(false);
+                if (mounted) {
+                    console.log('[AuthContext] Initialization complete, setting loading=false');
+                    setLoading(false);
+                }
             }
         };
 
+        // Run initialization
         initAuth();
+
+        return () => {
+            mounted = false;
+        };
     }, []);
 
     const login = useCallback(

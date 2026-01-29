@@ -13,8 +13,8 @@ class UsersService {
    */
   async getAll(params?: PaginationParams & { role?: string; search?: string }): Promise<PaginatedResponse<User>> {
     const response = await apiClient.get<PaginatedResponse<User>>(API_ENDPOINTS.USERS, { params });
-    // If response is wrapped in { data: ... }, extract it
-    return (response as any).data || response;
+    // Response is already the body
+    return response as any;
   }
 
   /**

@@ -1,53 +1,40 @@
-import React from 'react';
-import Head from 'next/head';
-import { ShieldCheck, GraduationCap } from 'lucide-react';
+import React, { ReactNode } from 'react';
+import { School } from 'lucide-react';
 
 interface AuthLayoutProps {
-    children: React.ReactNode;
-    title: string;
+    children: ReactNode;
+    header?: string;
+    subheader?: string;
+    title?: string;
 }
 
-export default function AuthLayout({ children, title }: AuthLayoutProps) {
+export default function AuthLayout({ children, header, subheader, title }: AuthLayoutProps) {
     return (
-        <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 relative overflow-hidden">
-            <Head>
-                <title>{`${title} - EduCore`}</title>
-            </Head>
-
-            {/* Decorative Background Elements - Professional White Theme */}
-            <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-                <div className="absolute top-[-10%] left-[-10%] size-[500px] bg-primary/5 rounded-full blur-[120px]" />
-                <div className="absolute bottom-[-10%] right-[-10%] size-[400px] bg-blue-100/20 rounded-full blur-[100px]" />
-                <div className="absolute top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] size-[300px] bg-slate-100/30 rounded-full blur-[80px]" />
+        <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+            <div className="sm:mx-auto sm:w-full sm:max-w-md">
+                <div className="flex justify-center">
+                    <div className="size-12 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-md">
+                        <School size={28} />
+                    </div>
+                </div>
+                <h2 className="mt-6 text-center text-3xl font-extrabold text-slate-900 tracking-tight">
+                    {header || title || 'Sign in to your account'}
+                </h2>
+                {subheader && (
+                    <p className="mt-2 text-center text-sm text-slate-600">
+                        {subheader}
+                    </p>
+                )}
             </div>
 
-            <div className="w-full max-w-[480px] relative z-10">
-                {/* Brand/Logo Section - Professional White Theme */}
-                <div className="flex flex-col items-center mb-10 text-center">
-                    <div className="size-16 bg-card border border-border rounded-2xl flex items-center justify-center shadow-soft mb-6 group hover:scale-105 transition-all duration-300">
-                        <GraduationCap className="text-primary" size={32} />
-                    </div>
-                    <div className="space-y-1">
-                        <h1 className="text-2xl font-black text-foreground uppercase tracking-[0.2em]">EduCore</h1>
-                        <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest italic flex items-center justify-center gap-2">
-                            <ShieldCheck size={12} className="text-primary" />
-                            Unified Institutional Gateway
-                        </p>
-                    </div>
+            <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+                <div className="bg-white py-8 px-4 shadow-sm border border-slate-200 rounded-xl sm:px-10">
+                    {children}
                 </div>
 
-                {/* Auth Content Card - Professional White Theme */}
-                <div className="bg-card border border-border rounded-3xl p-10 shadow-soft-lg overflow-hidden relative">
-                    <div className="absolute top-0 right-0 size-32 bg-gradient-to-br from-primary/5 to-transparent rounded-full blur-2xl opacity-60" />
-                    <div className="relative z-10">
-                        {children}
-                    </div>
-                </div>
-
-                {/* Footer info - Professional White Theme */}
-                <div className="mt-10 text-center">
-                    <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest leading-none">
-                        &copy; {new Date().getFullYear()} Institutional ERP Systems &bull; EduCore Protocol 4.2
+                <div className="mt-6 text-center">
+                    <p className="text-xs font-medium text-slate-400">
+                        &copy; {new Date().getFullYear()} EduCore Enterprise Systems. All rights reserved.
                     </p>
                 </div>
             </div>

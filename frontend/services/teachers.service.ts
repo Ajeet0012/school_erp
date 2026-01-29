@@ -9,8 +9,8 @@ import { mapTeacher } from '@/utils/mappers';
 
 class TeachersService {
   async getAll(params?: PaginationParams): Promise<PaginatedResponse<Teacher>> {
-    const response = await apiClient.get(API_ENDPOINTS.TEACHERS, { params });
-    return response.data!;
+    const response = await apiClient.get<PaginatedResponse<Teacher>>(API_ENDPOINTS.TEACHERS, { params });
+    return response as any;
   }
 
   async getById(id: string): Promise<Teacher> {

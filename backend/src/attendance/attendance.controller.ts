@@ -22,7 +22,7 @@ import { Role } from '@prisma/client';
 @Controller('attendance')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class AttendanceController {
-  constructor(private readonly attendanceService: AttendanceService) {}
+  constructor(private readonly attendanceService: AttendanceService) { }
 
   @Post('mark')
   @Roles(Role.TEACHER)
@@ -38,7 +38,7 @@ export class AttendanceController {
   }
 
   @Get()
-  @Roles(Role.TEACHER, Role.STUDENT, Role.PARENT)
+  @Roles(Role.TEACHER, Role.STUDENT, Role.PARENT, Role.SCHOOL_ADMIN, Role.SUPER_ADMIN)
   findAll(
     @Query() viewAttendanceDto: ViewAttendanceDto,
     @CurrentUser() user: any,

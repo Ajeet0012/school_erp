@@ -12,7 +12,7 @@ import { Role } from '@prisma/client';
 
 @Injectable()
 export class ClassesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   /**
    * Create class for a school
@@ -73,12 +73,16 @@ export class ClassesService {
    * Only SCHOOL_ADMIN can list classes from their school
    */
   async findAll(currentUser: { userId: string; role: Role; schoolId?: string }) {
-    if (currentUser.role !== Role.SCHOOL_ADMIN) {
-      throw new ForbiddenException('Only SCHOOL_ADMIN can list classes');
+    if (
+      currentUser.role !== Role.SCHOOL_ADMIN &&
+      currentUser.role !== Role.TEACHER &&
+      currentUser.role !== Role.SUPER_ADMIN
+    ) {
+      throw new ForbiddenException('Insufficient permissions to list classes');
     }
 
-    if (!currentUser.schoolId) {
-      throw new ForbiddenException('School admin must be associated with a school');
+    if (!currentUser.schoolId && currentUser.role !== Role.SUPER_ADMIN) {
+      throw new ForbiddenException('User must be associated with a school');
     }
 
     const classes = await this.prisma.class.findMany({

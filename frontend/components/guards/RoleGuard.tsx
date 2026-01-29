@@ -41,12 +41,15 @@ export default function RoleGuard({ children, allowedRoles, redirectTo }: RoleGu
     }
 
     // Check if user has required role
-    if (!hasRole(userRole, allowedRoles)) {
+    const hasRequiredRole = hasRole(userRole, allowedRoles);
+    if (!hasRequiredRole) {
       // Redirect to user's dashboard if role doesn't match
       const dashboard = getDashboardRoute(userRole) || '/auth/login';
-      router.push(redirectTo || dashboard);
+      if (router.pathname !== dashboard) {
+        router.push(redirectTo || dashboard);
+      }
     }
-  }, [loading, user, isAuthenticated, router, allowedRoles, redirectTo]);
+  }, [loading, user, isAuthenticated, router, redirectTo, JSON.stringify(allowedRoles)]);
 
   if (loading) {
     return (

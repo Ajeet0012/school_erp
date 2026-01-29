@@ -64,10 +64,10 @@ export default function TeacherDashboard() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {[
-                    { label: 'Assigned Classes', value: stats?.totalClasses || '06', icon: <Layers className="text-primary" />, trend: '+1 Node' },
-                    { label: 'Student Cohort', value: stats?.totalStudents || '142', icon: <Users className="text-indigo-500" />, trend: 'Stable' },
-                    { label: 'Attendance Ratio', value: '98.4%', icon: <Activity className="text-emerald-500" />, trend: '+2.1%' },
-                    { label: 'Faculty Score', value: '4.9/5', icon: <Star className="text-amber-500" />, trend: 'EXCELLENT' },
+                    { label: 'Assigned Classes', value: stats?.totalClasses || '0', icon: <Layers className="text-primary" />, trend: '+1 Node' },
+                    { label: 'Student Cohort', value: stats?.totalStudents || '0', icon: <Users className="text-indigo-500" />, trend: 'Stable' },
+                    { label: 'Attendance Ratio', value: stats?.attendanceRate || '0%', icon: <Activity className="text-emerald-500" />, trend: '+2.1%' },
+                    { label: 'Faculty Score', value: stats?.rating || '0/5', icon: <Star className="text-amber-500" />, trend: 'EXCELLENT' },
                 ].map((stat, i) => (
                     <div key={i} className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden relative group hover:border-primary/50 transition-all">
                         <div className="relative z-10 flex flex-col gap-8">

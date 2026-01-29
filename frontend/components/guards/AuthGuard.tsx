@@ -20,8 +20,11 @@ export default function AuthGuard({ children }: AuthGuardProps) {
   console.log('[AuthGuard] Rendering:', { loading, authenticated: isAuthenticated(), userEmail: user?.email });
 
   useEffect(() => {
+    // Only redirect if NOT loading and NOT authenticated
     if (!loading && !isAuthenticated()) {
-      router.push('/auth/login');
+      console.log('[AuthGuard] Redirecting to login...');
+      // Use replace to avoid history stack buildup
+      router.replace('/auth/login');
     }
   }, [loading, isAuthenticated, router]);
 
