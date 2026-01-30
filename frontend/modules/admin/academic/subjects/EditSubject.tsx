@@ -38,7 +38,7 @@ export default function EditSubject() {
                     name: data.name,
                     code: data.code,
                     description: data.description,
-                    credits: data.credits
+                    credits: (data as any).credits
                 });
             } catch (err: any) {
                 setError(err.message || 'Institutional data retrieval failed');
