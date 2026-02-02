@@ -17,7 +17,7 @@ import Link from 'next/link';
 import { usersService } from '@/services/users.service';
 import Button from '@/components/ui/Button';
 import { toast } from 'react-hot-toast';
-import { Skeleton } from '@/components/ui/Skeleton';
+import Skeleton from '@/components/ui/Skeleton';
 
 const MODULES = [
     { id: 'dashboard', name: 'Analytics & Insights' },
@@ -167,8 +167,8 @@ export default function RolePermissions() {
                                                     <button
                                                         onClick={() => togglePermission(m.id, p.id)}
                                                         className={`size-10 rounded-xl mx-auto flex items-center justify-center transition-all border-2 ${isActive
-                                                                ? 'bg-emerald-500/10 border-emerald-500 text-emerald-500 shadow-lg shadow-emerald-500/20'
-                                                                : 'bg-slate-50 dark:bg-slate-800/50 border-transparent text-slate-300 hover:border-slate-200'
+                                                            ? 'bg-emerald-500/10 border-emerald-500 text-emerald-500 shadow-lg shadow-emerald-500/20'
+                                                            : 'bg-slate-50 dark:bg-slate-800/50 border-transparent text-slate-300 hover:border-slate-200'
                                                             }`}
                                                     >
                                                         {isActive ? <Unlock size={18} /> : <Lock size={18} />}
