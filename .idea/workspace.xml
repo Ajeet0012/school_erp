@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="NONE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="4a4fa61f-65b5-41f6-b896-60151997c4e3" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/ERP.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/deviceManager.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/check_db.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/backend/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/backend/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/prisma/seed.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/prisma/seed.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/attendance/attendance.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/attendance/attendance.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/classes/classes.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/classes/classes.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/classes/classes.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/classes/classes.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/students/students.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/students/students.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/students/students.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/students/students.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/components/guards/AuthGuard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/components/guards/AuthGuard.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/components/guards/RoleGuard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/components/guards/RoleGuard.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/components/layouts/AdminLayout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/components/layouts/AdminLayout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/components/layouts/AuthLayout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/components/layouts/AuthLayout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/components/layouts/ParentLayout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/components/layouts/ParentLayout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/components/layouts/StudentLayout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/components/layouts/StudentLayout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/components/layouts/SuperAdminLayout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/components/layouts/SuperAdminLayout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/components/layouts/TeacherLayout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/components/layouts/TeacherLayout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/components/ui/DataCard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/components/ui/DataCard.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/components/ui/DataTable.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/components/ui/DataTable.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/contexts/AuthContext.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/contexts/AuthContext.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/modules/admin/attendance/students/StudentAttendance.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/modules/admin/attendance/students/StudentAttendance.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/modules/teacher/attendance/TeacherAttendance.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/modules/teacher/attendance/TeacherAttendance.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/modules/teacher/dashboard/TeacherDashboard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/modules/teacher/dashboard/TeacherDashboard.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/pages/_app.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/pages/_app.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/services/attendance.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/services/attendance.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/services/classes.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/services/classes.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/services/stats.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/services/stats.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/services/students.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/services/students.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/services/teachers.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/services/teachers.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/services/users.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/services/users.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/styles/globals.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/styles/globals.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/tailwind.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/tailwind.config.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/utils/api-client.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/utils/api-client.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/utils/types.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/utils/types.ts" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ClangdSettings">
+    <option name="formatViaClangd" value="false" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 6
+}</component>
+  <component name="ProjectId" id="38Q6ll64xGnlwxcdJymfAxi4sR9" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
+    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
+    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/ERP&quot;
+  }
+}</component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="4a4fa61f-65b5-41f6-b896-60151997c4e3" name="Changes" comment="" />
+      <created>1768719600384</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1768719600384</updated>
+    </task>
+    <servers />
+  </component>
+</project>
